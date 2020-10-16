@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{351AFB3F-2822-4ACB-BE61-34C2C9D753B9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LiveSplit.VoxSplitter</RootNamespace>
+    <AssemblyName>LiveSplit.VoxSplitter</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="LiveSplit.Core">
+      <HintPath>..\LiveSplit\LiveSplit\LiveSplit.Core\obj\Release\LiveSplit.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="UpdateManager">
+      <HintPath>..\LiveSplit\LiveSplit\UpdateManager\obj\Release\UpdateManager.dll</HintPath>
+    </Reference>
+    <Reference Include="CustomFontDialog">
+      <HintPath>..\LiveSplit\LiveSplit\Libs\CustomFontDialog\CustomFontDialog.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Component.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="ManualComponents\FontTextComponent.cs" />
+    <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.Designer.cs">
+      <DependentUpon>ManualDoubleTimerSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ManualComponents\ManualTextComponent.cs" />
+    <Compile Include="ManualComponents\ManualTextSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ManualComponents\ManualTextSettings.Designer.cs">
+      <DependentUpon>ManualTextSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ManualComponents\ManualTimer.cs" />
+    <Compile Include="ManualComponents\ManualTimerSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ManualComponents\ManualTimerSettings.Designer.cs">
+      <DependentUpon>ManualTimerSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Memory\Memory.cs" />
+    <Compile Include="Memory\NestedPointerFactory.cs" />
+    <Compile Include="Memory\SignatureMemory.cs" />
+    <Compile Include="MonoHelper\MonoHelper.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Settings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\TooltipSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\TooltipSettings.Designer.cs">
+      <DependentUpon>TooltipSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\TreeSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\TreeSettings.Designer.cs">
+      <DependentUpon>TreeSettings.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="MonoHelper\MonoHelper64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MonoHelper\MonoHelper32.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
