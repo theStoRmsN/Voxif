@@ -419,6 +419,7 @@ namespace LiveSplit.VoxSplitter {
             tokenSource?.Cancel();
             monoPipe?.WriteByte(MonoCommand.Exit);
             monoPipe?.Dispose();
+            monoPipe = null;
         }
 
         protected void Sleep(int msTimeout = 50) => Thread.Sleep(msTimeout);
