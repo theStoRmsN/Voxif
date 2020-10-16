@@ -133,7 +133,7 @@ namespace LiveSplit.VoxSplitter {
                 Directory.CreateDirectory(inheritedAssembly.ResourcesPath());
             }
 
-            string versionPath = Path.Combine(inheritedAssembly.ResourcesPath(), "Version.txt");
+            string versionPath = Path.Combine(inheritedAssembly.ResourcesPath(), "Version");
             if(File.Exists(versionPath)) {
                 Version resourcesVer = new Version(File.ReadAllText(versionPath));
 

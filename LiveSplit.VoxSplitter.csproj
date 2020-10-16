@@ -104,10 +104,14 @@
     <Compile Include="Settings\TreeSettings.Designer.cs">
       <DependentUpon>TreeSettings.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="MonoHelper\MonoHelper64.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="MonoHelper\MonoHelper64.dll" />
     <EmbeddedResource Include="MonoHelper\MonoHelper32.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Components\LiveSplit.VoxSplitter.dll" />
+    <None Include="Components\Version" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

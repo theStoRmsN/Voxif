@@ -226,8 +226,8 @@ namespace LiveSplit.VoxSplitter {
             return sb.ToString();
         }
         public static string GitURL(this Assembly asm) => (string)asm.GetType(asm.Name() + asm.Name().Substring(9) + "Factory").GetField("GitURL").GetRawConstantValue();
-        public static string GitMasterURL(this Assembly asm) => Path.Combine(asm.GitURL(), asm.Name(), "master");
-        public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMasterURL(), "Resources");
+        public static string GitMainURL(this Assembly asm) => Path.Combine(asm.GitURL(), asm.Name(), "main");
+        public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
         public static string ResourcesPath(this Assembly asm) => Path.Combine(Directory.GetCurrentDirectory(), "Components", asm.Name());
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
         public static string Name(this Assembly asm) => asm.GetName().Name;
