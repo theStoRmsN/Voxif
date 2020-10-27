@@ -1,11 +1,11 @@
-﻿using System;
+﻿using LiveSplit.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
@@ -32,7 +32,11 @@ namespace LiveSplit.VoxSplitter {
         protected readonly HashSet<string> parentList;
 
         protected LabelHashSet<string> splits;
-        public override HashSet<string> Splits { get => splits; }
+        public override HashSet<string> Splits => splits;
+
+        public Dictionary<string, string> convertableSettings;
+
+        protected readonly LiveSplitState state;
 
         protected bool Icons {
             get => !CheckBoxIcons.IsDisposed && CheckBoxIcons.Checked;
@@ -44,7 +48,8 @@ namespace LiveSplit.VoxSplitter {
             set => ComboBoxTip.SelectedIndex = value;
         }
 
-        public TreeSettings(Assembly assembly, SettingInfo? start, SettingInfo? reset, OptionsInfo? options, int defPreset = 0) : base(assembly, start, reset, options) {
+        public TreeSettings(LiveSplitState state, SettingInfo? start, SettingInfo? reset, OptionsInfo? options, int defPreset = 0) : base(start, reset, options) {
+            this.state = state; 
             int height = Height;
 
             InitializeComponent();
@@ -61,10 +66,10 @@ namespace LiveSplit.VoxSplitter {
 
             settingsDict = new Dictionary<string, NewTreeNode>();
             parentList = new HashSet<string>();
-            splits = new LabelHashSet<string>(LabelSplitCount);
+            splits = new LabelHashSet<string>(LabelSplitCount, ButtonSplitGenerator);
 
             XmlDocument settingsXML = new XmlDocument();
-            settingsXML.Load(inheritedAssembly.GetManifestResourceStream(inheritedAssembly.Name() + ".Splits.Splits.xml"));
+            settingsXML.Load(Factory.ExAssembly.GetManifestResourceStream(Factory.ExAssembly.GetName().Name + ".Splits.Splits.xml"));
             SetupSettings(settingsXML.SelectNodes("Splits/Split"));
 
             SetupImages();
@@ -129,54 +134,57 @@ namespace LiveSplit.VoxSplitter {
         }
 
         private void DownloadImages(HashSet<string> icoNames, HashSet<string> tipNames) {
-            if(!Directory.Exists(inheritedAssembly.ResourcesPath())) {
-                Directory.CreateDirectory(inheritedAssembly.ResourcesPath());
+            if(!Directory.Exists(Factory.ExAssembly.ResourcesPath())) {
+                Directory.CreateDirectory(Factory.ExAssembly.ResourcesPath());
             }
 
-            string versionPath = Path.Combine(inheritedAssembly.ResourcesPath(), "Version");
-            if(File.Exists(versionPath)) {
-                Version resourcesVer = new Version(File.ReadAllText(versionPath));
+            try {
+                string versionPath = Path.Combine(Factory.ExAssembly.ResourcesPath(), "Version");
+                if(File.Exists(versionPath)) {
+                    Version resourcesVer = new Version(File.ReadAllText(versionPath));
 
-                XmlDocument doc = new XmlDocument();
-                doc.Load(Path.Combine(inheritedAssembly.ResourcesURL(), "ResourcesUpdate.xml"));
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(Path.Combine(Factory.ExAssembly.ResourcesURL(), "ResourcesUpdate.xml"));
 
-                Version newerVer = Version.Parse(doc.SelectSingleNode("updates/update").Attributes["version"].InnerText);
+                    Version newerVer = Version.Parse(doc.SelectSingleNode("updates/update").Attributes["version"].InnerText);
 
-                if(newerVer > resourcesVer) {
-                    HashSet<string> changedFiles = new HashSet<string>();
-                    HashSet<string> removedFiles = new HashSet<string>();
-                    foreach(XmlNode updateNode in doc.SelectNodes("updates/update")) {
-                        if(Version.Parse(updateNode.Attributes["version"].InnerText) <= resourcesVer) {
-                            break;
-                        }
+                    if(newerVer > resourcesVer) {
+                        HashSet<string> changedFiles = new HashSet<string>();
+                        HashSet<string> removedFiles = new HashSet<string>();
+                        foreach(XmlNode updateNode in doc.SelectNodes("updates/update")) {
+                            if(Version.Parse(updateNode.Attributes["version"].InnerText) <= resourcesVer) {
+                                break;
+                            }
 
-                        foreach(XmlNode fileNode in updateNode["files"].ChildNodes) {
-                            string filePath = fileNode.Attributes["path"].InnerText;
-                            if(fileNode.Attributes["status"].InnerText.Equals("changed")) {
-                                if(!removedFiles.Contains(filePath)) {
-                                    changedFiles.Add(filePath);
-                                }
-                            } else {
-                                if(!changedFiles.Contains(filePath)) {
-                                    removedFiles.Add(filePath);
+                            foreach(XmlNode fileNode in updateNode["files"].ChildNodes) {
+                                string filePath = fileNode.Attributes["path"].InnerText;
+                                if(fileNode.Attributes["status"].InnerText.Equals("changed")) {
+                                    if(!removedFiles.Contains(filePath)) {
+                                        changedFiles.Add(filePath);
+                                    }
+                                } else {
+                                    if(!changedFiles.Contains(filePath)) {
+                                        removedFiles.Add(filePath);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    foreach(string path in changedFiles) {
-                        DownloadFile(Path.Combine(inheritedAssembly.ResourcesURL(), path), Path.Combine(inheritedAssembly.ResourcesPath(), path));
-                    }
+                        foreach(string path in changedFiles) {
+                            DownloadFile(Path.Combine(Factory.ExAssembly.ResourcesURL(), path), Path.Combine(Factory.ExAssembly.ResourcesPath(), path));
+                        }
 
-                    foreach(string path in removedFiles) {
-                        File.Delete(Path.Combine(inheritedAssembly.ResourcesPath(), path));
-                    }
+                        foreach(string path in removedFiles) {
+                            File.Delete(Path.Combine(Factory.ExAssembly.ResourcesPath(), path));
+                        }
 
-                    File.WriteAllText(versionPath, newerVer.ToString(3));
+                        File.WriteAllText(versionPath, newerVer.ToString(3));
+                    }
+                } else {
+                    File.WriteAllText(versionPath, Factory.ExAssembly.GetName().Version.ToString(3));
                 }
-            } else {
-                File.WriteAllText(versionPath, Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
-            }
+            } catch(Exception e) { LiveSplit.Options.Log.Error(e); }
+
 
             foreach(string icoName in icoNames) {
                 IconList.Images.Add(icoName, new Bitmap(DownloadImage(icoName, "Icons")));
@@ -189,10 +197,10 @@ namespace LiveSplit.VoxSplitter {
 
         private string DownloadImage(string name, string directory) {
             string imgName = name + ".png";
-            string imgPath = Path.Combine(inheritedAssembly.ResourcesPath(), directory, imgName);
+            string imgPath = Path.Combine(Factory.ExAssembly.ResourcesPath(), directory, imgName);
 
             if(!File.Exists(imgPath)) {
-                DownloadFile(Path.Combine(inheritedAssembly.ResourcesURL(), directory, imgName), imgPath);
+                DownloadFile(Path.Combine(Factory.ExAssembly.ResourcesURL(), directory, imgName), imgPath);
             }
 
             return imgPath;
@@ -210,7 +218,7 @@ namespace LiveSplit.VoxSplitter {
         }
 
         protected Bitmap GetTooltipImage(string name) {
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "Components", Assembly.GetExecutingAssembly().Name(), "Tooltips", name + ".png");
+            string path = Path.Combine(Factory.ExAssembly.Location, Factory.ExAssembly.GetName().Name, "Tooltips", name + ".png");
             return File.Exists(path) ? new Bitmap(path) : null;
         }
 
@@ -247,21 +255,29 @@ namespace LiveSplit.VoxSplitter {
 
                 if(componentList.Count > 0) {
                     foreach(XmlNode node in componentList) {
-                        if(settingsDict.ContainsKey(node.InnerText)) {
-                            settingsDict[node.InnerText].Checked = true;
-                            splits.Add(node.InnerText);
-                        }
+                        HandleSetting(node.InnerText);
                     }
                 } else {
                     foreach(XmlNode node in aslList) {
                         if(!Boolean.Parse(node.InnerText)) {
                             continue;
                         }
-                        string name = node.Attributes["id"].Value;
-                        if(!parentList.Contains(name) && settingsDict.ContainsKey(name)) {
-                            settingsDict[name].Checked = true;
-                            splits.Add(name);
+                        HandleSetting(node.Attributes["id"].Value);
+                    }
+                }
+
+                void HandleSetting(string setting) {
+                    if(convertableSettings != null) {
+                        foreach(KeyValuePair<string, string> kvp in convertableSettings) {
+                            if(setting.StartsWith(kvp.Key)) {
+                                setting = kvp.Value + setting.Substring(kvp.Key.Length);
+                                break;
+                            }
                         }
+                    }
+                    if(!parentList.Contains(setting) && settingsDict.ContainsKey(setting)) {
+                        settingsDict[setting].Checked = true;
+                        splits.Add(setting);
                     }
                 }
             }
@@ -547,6 +563,34 @@ namespace LiveSplit.VoxSplitter {
                                              nodeToScreenPos.Y + node.Bounds.Height / 2 - tooltipSettings.Height / 2);
         }
 
+        private void ButtonSplitGenerator_Click(object sender, EventArgs e) {
+            if(MessageBox.Show("Generating the splits will overwrite the existing splits and times, do you want to overwrite them?",
+                "Generate Splits?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) {
+                return;
+            }
+
+            using(SplitsGenerator splitGen = new SplitsGenerator()) {
+                int maxWidth = 0;
+                foreach(string split in Splits) {
+                    string splitName = settingsDict[split].Text;
+                    splitGen.ListView.Items.Add(splitName);
+                    int width = TextRenderer.MeasureText(splitName, splitGen.ListView.Font).Width;
+                    if(width > maxWidth) {
+                        maxWidth = width;
+                    }
+                }
+                splitGen.ListView.Size = new Size(maxWidth + 20, splitGen.ListView.Items[0].Bounds.Height * (state.Run.Count + 2));
+                if(splitGen.ShowDialog() != DialogResult.OK) {
+                    return;
+                }
+                state.Run.Clear();
+                foreach(ListViewItem item in splitGen.ListView.Items) {
+                    state.Run.AddSegment(item.Text);
+                }
+                state.Form.Refresh();
+            }
+        }
+
         protected void ButtonExpand_Click(object sender, EventArgs e) {
             SuspendAllDrawing();
             StoreTreeScroll();
@@ -661,12 +705,15 @@ namespace LiveSplit.VoxSplitter {
 
             private readonly Label label;
 
-            public LabelHashSet(Label label) {
+            private readonly Button generator;
+
+            public LabelHashSet(Label label, Button generator = null) {
                 this.label = label;
+                this.generator = generator;
             }
 
             public void Set(HashSet<T> set) {
-                Clear();
+                base.Clear();
                 UnionWith(set);
                 SetText();
             }
@@ -690,7 +737,12 @@ namespace LiveSplit.VoxSplitter {
                 return true;
             }
 
-            private void SetText() => label.Text = Count.ToString();
+            private void SetText() {
+                if(generator != null) {
+                    generator.Enabled = Count > 0;
+                }
+                label.Text = Count.ToString();
+            }
         }
     }
 }

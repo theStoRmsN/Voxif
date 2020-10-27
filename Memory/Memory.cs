@@ -8,7 +8,7 @@ namespace LiveSplit.VoxSplitter {
     public abstract class Memory : IDisposable {
 
         public Process game;
-        protected string gameName;
+        protected string processName;
         protected DateTime hookTime;
 
         public uint Tick { get; private set; } = 1;
@@ -19,7 +19,9 @@ namespace LiveSplit.VoxSplitter {
 
         public Logger logger;
 
-        protected Memory(Logger logger) => this.logger = logger;
+        protected Memory(Logger logger) {
+            this.logger = logger;
+        }
 
         public virtual bool TryGetGameProcess() {
             if(DateTime.Now < hookTime) { return false; }
@@ -27,12 +29,12 @@ namespace LiveSplit.VoxSplitter {
             hookTime = DateTime.Now.AddSeconds(1d);
 
             Process process = Process.GetProcesses().FirstOrDefault((Process p) =>
-                p.ProcessName.StartsWith(gameName, StringComparison.OrdinalIgnoreCase) && !p.HasExited);
+                p.ProcessName.StartsWith(processName, StringComparison.OrdinalIgnoreCase) && !p.HasExited);
 
-            if(process == null) {
+            if(process == null || process.Modules() == null) {
                 return false;
             }
-            logger?.Log("Process Found: PID " + process.Id);
+            logger.Log("Process Found: PID " + process.Id);
             game = process;
             return true;
         }
@@ -61,6 +63,8 @@ namespace LiveSplit.VoxSplitter {
         public virtual void OnReset(TimerModel timer) { }
         public virtual void Dispose() { }
 
+        public IntPtr FromRelativeAddress(IntPtr asmAddress) => asmAddress + 0x4 + game.Read<int>(asmAddress);
+        public IntPtr FromAbsoluteAddress(IntPtr asmAddress) => game.Read<IntPtr>(asmAddress);
 
         public class RemainingHashSet : HashSet<string> {
             protected Logger logger;
@@ -70,12 +74,8 @@ namespace LiveSplit.VoxSplitter {
             }
 
             public bool Split(string split) {
-                logger?.Log("Try to split: " + split);
-                if(Remove(split)) {
-                    logger?.Log("Split: " + split);
-                    return true;
-                }
-                return false;
+                logger.Log("Try to split: " + split);
+                return Remove(split);
             }
         }
 
@@ -106,24 +106,19 @@ namespace LiveSplit.VoxSplitter {
             }
 
             public bool Split(string type, string setting) {
-                logger?.Log("Try to split setting: " + setting);
+                logger.Log("Try to split setting: " + setting);
                 if(this[type].Remove(setting)) {
                     if(this[type].Count == 0) {
                         Remove(type);
                     }
-                    logger?.Log("Split setting: " + setting);
                     return true;
                 }
                 return false;
             }
 
             public bool Split(string type) {
-                logger?.Log("Try to split type: " + type);
-                if(Remove(type)) {
-                    logger?.Log("Split type: " + type);
-                    return true;
-                }
-                return false;
+                logger.Log("Try to split type: " + type);
+                return Remove(type);
             }
         }
     }

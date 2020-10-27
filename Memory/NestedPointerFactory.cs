@@ -7,191 +7,216 @@ namespace LiveSplit.VoxSplitter {
     public class NestedPointerFactory {
 
         protected Memory memory;
-
         protected EDerefType derefType;
+        protected IntPtr moduleBase;
 
-        protected Dictionary<Pointer, HashSet<NodePointer>> nodeLink = new Dictionary<Pointer, HashSet<NodePointer>>();
+        protected Dictionary<IPointer, HashSet<IPointer>> nodeLink = new Dictionary<IPointer, HashSet<IPointer>>();
 
-        public NestedPointerFactory(Memory memory) : this(memory, EDerefType.Auto) { }
-
-        public NestedPointerFactory(Memory memory, EDerefType derefType) {
+        public NestedPointerFactory(Memory memory) : this(memory, null, EDerefType.Auto) { }
+        public NestedPointerFactory(Memory memory, string moduleName) : this(memory, moduleName, EDerefType.Auto) { }
+        public NestedPointerFactory(Memory memory, string moduleName, EDerefType derefType) {
             this.memory = memory;
             this.derefType = derefType;
+            if(moduleName == null) {
+                moduleBase = memory.game.Modules()[0].BaseAddress;
+            } else {
+                moduleBase = memory.game.Modules().FirstOrDefault(
+                    m => m.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))?.BaseAddress ?? default;
+            }
         }
 
-        protected HashSet<Pointer> BasePointers() => nodeLink.Keys.Where(n => n is BasePointer).ToHashSet();
+        protected HashSet<IPointer> BasePointers() => nodeLink.Keys.Where(n => n is IBasePointer).ToHashSet();
 
-        public BasePointer MakeBase(IntPtr basePtr) {
-            return MakeBase(derefType, basePtr);
+        public Pointer<T> Make<T>(int moduleOffset, params int[] offsets) where T : unmanaged {
+            return Make<T>(derefType, moduleBase + moduleOffset, offsets);
         }
-
-        public BasePointer MakeBase(EDerefType derefType, IntPtr basePtr) {
-            BasePointer pointer = (BasePointer)Make(typeof(IntPtr), derefType, basePtr, null);
-            _ = pointer.New;
+        public Pointer<T> Make<T>(IntPtr basePtr, params int[] offsets) where T : unmanaged {
+            return Make<T>(derefType, basePtr, offsets);
+        }
+        public Pointer<T> Make<T>(EDerefType derefType, IntPtr basePtr, params int[] offsets) where T : unmanaged {
+            Pointer<T> pointer = (Pointer<T>)Make(typeof(T), derefType, basePtr, offsets);
+            pointer.ForceUpdate();
             return pointer;
         }
 
-        public StructPointer<T> Make<T>(IntPtr basePtr, int offset, params int[] offsets) where T : unmanaged {
-            return Make<T>(derefType, basePtr, offset, offsets);
+        public StringPointer MakeString(int moduleOffset, params int[] offsets) {
+            return MakeString(derefType, moduleBase + moduleOffset, offsets);
         }
-
-        public StructPointer<T> Make<T>(EDerefType derefType, IntPtr basePtr, int offset, params int[] offsets) where T : unmanaged {
-            StructPointer<T> pointer = (StructPointer<T>)Make(typeof(T), derefType, basePtr, offsets.Prepend(offset).ToArray());
-            _ = pointer.New;
+        public StringPointer MakeString(IntPtr basePtr, params int[] offsets) {
+            return MakeString(derefType, basePtr, offsets);
+        }
+        public StringPointer MakeString(EDerefType derefType, IntPtr basePtr, params int[] offsets) {
+            StringPointer pointer = (StringPointer)Make(typeof(string), derefType, basePtr, offsets);
+            pointer.ForceUpdate();
             return pointer;
         }
 
-        public StructPointer<T> Make<T>(Pointer parent, int offset, params int[] offsets) where T : unmanaged {
-            return Make<T>(derefType, parent, offset, offsets);
+        public Pointer<T> Make<T>(Pointer parent, params int[] offsets) where T : unmanaged {
+            return Make<T>(derefType, parent, offsets);
         }
-
-        public StructPointer<T> Make<T>(EDerefType derefType, Pointer parent, int offset, params int[] offsets) where T : unmanaged {
-            StructPointer<T> pointer = (StructPointer<T>)Make(typeof(T), derefType, parent, offsets.Prepend(offset).ToArray());
-            _ = pointer.New;
+        public Pointer<T> Make<T>(EDerefType derefType, Pointer parent, params int[] offsets) where T : unmanaged {
+            Pointer<T> pointer = (Pointer<T>)Make(typeof(T), derefType, parent, offsets);
+            pointer.ForceUpdate();
             return pointer;
         }
 
-        public StringPointer MakeString(IntPtr basePtr, int offset, params int[] offsets) {
-            return MakeString(derefType, basePtr, offset, offsets);
+        public StringPointer MakeString(Pointer parent, params int[] offsets) {
+            return MakeString(derefType, parent, offsets);
         }
-
-        public StringPointer MakeString(EDerefType derefType, IntPtr basePtr, int offset, params int[] offsets) {
-            StringPointer pointer = (StringPointer)Make(typeof(string), derefType, basePtr, offsets.Prepend(offset).ToArray());
-            _ = pointer.New;
+        public StringPointer MakeString(EDerefType derefType, Pointer parent, params int[] offsets) {
+            StringPointer pointer = (StringPointer)Make(typeof(string), derefType, parent, offsets);
+            pointer.ForceUpdate();
             return pointer;
         }
 
-        public StringPointer MakeString(Pointer parent, int offset, params int[] offsets) {
-            return MakeString(derefType, parent, offset, offsets);
-        }
-
-        public StringPointer MakeString(EDerefType derefType, Pointer parent, int offset, params int[] offsets) {
-            StringPointer pointer = (StringPointer)Make(typeof(string), derefType, parent, offsets.Prepend(offset).ToArray());
-            _ = pointer.New;
-            return pointer;
-        }
-
-        protected Pointer Make(Type type, EDerefType derefType, IntPtr basePtr, params int[] offsets) {
-            Pointer pointer;
-            foreach(BasePointer basePointer in BasePointers()) {
+        protected IPointer Make(Type type, EDerefType derefType, IntPtr basePtr, params int[] offsets) {
+            IPointer pointer;
+            foreach(IBasePointer basePointer in BasePointers()) {
                 if(basePointer.Base != basePtr) {
                     continue;
                 }
 
-                if(offsets == null) {
+                if(offsets.Length == 0 || basePointer.Offsets.SequenceEqual(offsets)) {
                     return basePointer;
                 }
 
-                pointer = AddPointer(type, nodeLink[basePointer], derefType, offsets);
+                for(int i = 0; i < basePointer.Offsets.Length; i++) {
+                    if(i < offsets.Length && basePointer.Offsets[i] == offsets[i]) {
+                        continue;
+                    }
 
+                    BasePointer<IntPtr> newBase = new BasePointer<IntPtr>(memory, basePointer.Base, derefType, basePointer.Offsets.Take(i).ToArray());
+                    Type baseType = basePointer.GetType().IsGenericType ? basePointer.GetType().GenericTypeArguments[0] : typeof(string);
+                    INodePointer nodeBase = CreateNodeStructOrString(baseType, newBase, derefType, basePointer.Offsets.Skip(i).ToArray());
+                    nodeLink.Add(nodeBase, new HashSet<IPointer>());
+                    foreach(INodePointer node in nodeLink[basePointer]) {
+                        node.Parent = nodeBase;
+                        nodeLink[nodeBase].Add(node);
+                    }
+                    nodeLink.Remove(basePointer);
+                    if(i != offsets.Length) {
+                        INodePointer newNode = CreateNodeStructOrString(type, newBase, derefType, offsets.Skip(i).ToArray());
+                        nodeLink.Add(newBase, new HashSet<IPointer> { nodeBase, newNode });
+                        return newNode;
+                    } else {
+                        nodeLink.Add(newBase, new HashSet<IPointer> { nodeBase });
+                        return newBase;
+                    }
+                }
+
+                pointer = AddPointer(type, nodeLink[basePointer], derefType, offsets.Skip(basePointer.Offsets.Length).ToArray());
                 if(pointer == null) {
-                    pointer = CreateStructOrString(type, basePointer, derefType, offsets);
-                    nodeLink[basePointer].Add((NodePointer)pointer);
+                    pointer = CreateNodeStructOrString(type, basePointer, derefType, offsets.Skip(basePointer.Offsets.Length).ToArray());
+                    nodeLink[basePointer].Add(pointer);
                 }
                 return pointer;
             }
-            BasePointer newBasePointer = new BasePointer(memory, basePtr, derefType);
-            if(offsets != null) {
-                pointer = CreateStructOrString(type, newBasePointer, derefType, offsets);
-                nodeLink.Add(newBasePointer, new HashSet<NodePointer> { (NodePointer)pointer });
-                return pointer;
-            } else {
-                nodeLink.Add(newBasePointer, new HashSet<NodePointer>());
-                return newBasePointer;
-            }
+            IBasePointer newBasePointer = CreateBaseStructOrString(type, basePtr, derefType, offsets);
+            nodeLink.Add(newBasePointer, new HashSet<IPointer>());
+            return newBasePointer;
         }
 
-        protected Pointer Make(Type type, EDerefType derefType, Pointer parent, params int[] offsets) {
-            Pointer pointer = null;
-            if(nodeLink.TryGetValue(parent, out HashSet<NodePointer> value)) {
+        protected IPointer Make(Type type, EDerefType derefType, IPointer parent, params int[] offsets) {
+            IPointer pointer = null;
+            if(nodeLink.TryGetValue(parent, out HashSet<IPointer> value)) {
                 pointer = AddPointer(type, value, derefType, offsets);
             } else {
-                nodeLink.Add(parent, new HashSet<NodePointer>());
+                nodeLink.Add(parent, new HashSet<IPointer>());
             }
             if(pointer == null) {
-                pointer = CreateStructOrString(type, parent, derefType, offsets);
-                nodeLink[parent].Add((NodePointer)pointer);
+                pointer = CreateNodeStructOrString(type, parent, derefType, offsets);
+                nodeLink[parent].Add(pointer);
             }
             return pointer;
         }
 
-        private NodePointer AddPointer(Type type, HashSet<NodePointer> pointers, EDerefType derefType, int[] offsets) {
-            NodePointer newNode = null;
-            foreach(NodePointer ptr in pointers) {
-                if(ptr.offsets[0] != offsets[0]) {
+        private IPointer AddPointer(Type type, HashSet<IPointer> pointers, EDerefType derefType, int[] offsets) {
+            IPointer newNode = null;
+            foreach(INodePointer ptr in pointers) {
+                if(ptr.Offsets[0] != offsets[0]) {
                     continue;
                 }
-
-                if(ptr.offsets.SequenceEqual(offsets)) {                        
+                if(ptr.Offsets.SequenceEqual(offsets)) {
                     return ptr;
                 }
-
-                for(int o = 1; o < ptr.offsets.Length; o++) {
-                    if(ptr.offsets[o] == offsets[o]) {
+                for(int i = 1; i < ptr.Offsets.Length; i++) {
+                    if(i < offsets.Length && ptr.Offsets[i] == offsets[i]) {
                         continue;
                     }
-                    NodePointer newParent = new StructPointer<IntPtr>(memory, ptr.parent, derefType, ptr.offsets.Take(o).ToArray());
+                    NodePointer<IntPtr> newParent = new NodePointer<IntPtr>(memory, ptr.Parent, derefType, ptr.Offsets.Take(i).ToArray());
                     pointers.Remove(ptr);
                     pointers.Add(newParent);
-                    ptr.parent = newParent;
-                    ptr.offsets = ptr.offsets.Skip(o).ToArray();
-                    if(o != offsets.Length) {
-                        newNode = CreateStructOrString(type, newParent, derefType, offsets.Skip(o).ToArray());
-                        nodeLink.Add(newParent, new HashSet<NodePointer> { ptr, newNode });
+                    ptr.Parent = newParent;
+                    ptr.Offsets = ptr.Offsets.Skip(i).ToArray();
+                    if(i != offsets.Length) {
+                        newNode = CreateNodeStructOrString(type, newParent, derefType, offsets.Skip(i).ToArray());
+                        nodeLink.Add(newParent, new HashSet<IPointer> { ptr, newNode });
                         return newNode;
                     } else {
-                        nodeLink.Add(newParent, new HashSet<NodePointer> { ptr });
+                        nodeLink.Add(newParent, new HashSet<IPointer> { ptr });
                         return newParent;
                     }
                 }
-
-                if(nodeLink.ContainsKey(ptr) && (newNode = AddPointer(type, nodeLink[ptr], derefType, offsets.Skip(ptr.offsets.Length).ToArray())) != null) {
+                if(nodeLink.ContainsKey(ptr) && (newNode = AddPointer(type, nodeLink[ptr], derefType, offsets.Skip(ptr.Offsets.Length).ToArray())) != null) {
                     return newNode;
                 }
-
-                newNode = CreateStructOrString(type, ptr, derefType, offsets.Skip(ptr.offsets.Length).ToArray());
+                newNode = CreateNodeStructOrString(type, ptr, derefType, offsets.Skip(ptr.Offsets.Length).ToArray());
                 if(nodeLink.ContainsKey(ptr)) {
                     nodeLink[ptr].Add(newNode);
                 } else {
-                    nodeLink[ptr] = new HashSet<NodePointer> { newNode };
+                    nodeLink[ptr] = new HashSet<IPointer> { newNode };
                 }
             }
             return newNode;
         }
-
-        private NodePointer CreateStructOrString(Type type, Pointer basePointer, EDerefType derefType, params int[] offsets) {
+        private IBasePointer CreateBaseStructOrString(Type type, IntPtr basePointer, EDerefType derefType, params int[] offsets) {
             return type == typeof(string)
-                 ? new StringPointer(memory, basePointer, derefType, offsets)
-                 : (NodePointer)Activator.CreateInstance(typeof(StructPointer<>).MakeGenericType(type), new object[] { memory, basePointer, derefType, offsets });
+                 ? new BaseStringPointer(memory, basePointer, derefType, offsets)
+                 : (IBasePointer)Activator.CreateInstance(typeof(BasePointer<>).MakeGenericType(type), new object[] { memory, basePointer, derefType, offsets });
         }
 
-        public override string ToString() {
-            string str = "";
-            foreach(BasePointer baseNode in BasePointers()) {
-                str += Environment.NewLine + "0x" + baseNode.Base.ToString("X8");
-                foreach(NodePointer node in nodeLink[baseNode]) {
-                    str += NodeToString(node);
+        private INodePointer CreateNodeStructOrString(Type type, IPointer basePointer, EDerefType derefType, params int[] offsets) {
+            return type == typeof(string)
+                 ? new NodeStringPointer(memory, basePointer, derefType, offsets)
+                 : (INodePointer)Activator.CreateInstance(typeof(NodePointer<>).MakeGenericType(type), new object[] { memory, basePointer, derefType, offsets });
+        }
+
+        private string NodeToString(Pointer pointer) {
+            string str = Environment.NewLine;
+            str += new string(' ', 19 + GetTreeDepth(pointer) * 4) + pointer.OffsetsToString();
+
+            if(nodeLink.ContainsKey(pointer)) {
+                foreach(Pointer subNode in nodeLink[pointer]) {
+                    str += NodeToString(subNode);
                 }
             }
             return str;
         }
 
-        private string NodeToString(NodePointer pointer) {
-            string str = Environment.NewLine;
-            str += new string(' ', pointer.GetTreeDepth() * 4) + pointer.OffsetsToString();
+        public int GetTreeDepth(IPointer pointer) => pointer is INodePointer nodeParent ? 1 + GetTreeDepth(nodeParent.Parent) : 0;
 
-            if(nodeLink.ContainsKey(pointer)) {
-                foreach(NodePointer subNode in nodeLink[pointer]) {
-                    str += NodeToString(subNode);
+        public override string ToString() {
+            string str = "";
+            foreach(IBasePointer baseNode in BasePointers()) {
+                str += Environment.NewLine + "0x" + baseNode.Base.ToString("X16");
+                str += " "+((Pointer)baseNode).OffsetsToString();
+                foreach(Pointer node in nodeLink[baseNode].OrderBy(n => n.Offsets[0])) {
+                    str += NodeToString(node);
                 }
             }
             return str;
         }
     }
 
+    public interface IPointer {
+        int[] Offsets { get; set; }
+        object Old { get; set; }
+        object New { get; set; }
+    }
+
     public enum EDerefType { Auto, Bit32, Bit64 };
 
-    public abstract class Pointer {
+    public abstract class Pointer : IPointer {
 
         protected Memory memory;
 
@@ -223,69 +248,38 @@ namespace LiveSplit.VoxSplitter {
 
         public bool Changed => !Old.Equals(newValue);
 
+        public int[] Offsets { get; set; }
+
         public EDerefType derefType;
 
-        public Pointer(Memory memory, EDerefType derefType) {
+        public Pointer(Memory memory, EDerefType derefType, params int[] offsets) {
             this.memory = memory;
             this.derefType = derefType;
+            Offsets = offsets;
         }
+
+        protected abstract IntPtr DerefOffsets();
 
         protected abstract void Update();
-    }
-
-    public class BasePointer : Pointer {
-
-        public new IntPtr Old {
-            get => (IntPtr)base.Old;
-            set => base.Old = value;
-        }
-        public new IntPtr New {
-            get => (IntPtr)base.New;
-            set => base.New = value;
-        }
-
-        public IntPtr Base { get; protected set; }
-
-        public BasePointer(Memory memory, IntPtr basePtr) : this(memory, basePtr, EDerefType.Auto) { }
-        public BasePointer(Memory memory, IntPtr basePtr, EDerefType derefType) : base(memory, derefType) {
-            oldValue = newValue = Base = basePtr;
-        }
-
-        protected override void Update() { }
-    }
-
-    public abstract class NodePointer : Pointer {
-        public int[] offsets;
-        public Pointer parent;
-
-        public NodePointer(Memory memory, Pointer parent, EDerefType derefType, params int[] offsets) : base(memory, derefType) {
-            this.offsets = offsets;
-            this.parent = parent;
-        }
-
-        protected IntPtr DerefOffsets() {
-            return memory.game.DerefOffsets(derefType, (IntPtr)parent.New, offsets);
-        }
-
-        public int GetTreeDepth() => parent is NodePointer nodeParent ? 1 + nodeParent.GetTreeDepth() : 1;
 
         public string OffsetsToString() {
-            if((offsets?.Length ?? 0) == 0) {
+            if(Offsets.Length == 0) {
                 return "";
             }
-
             StringBuilder sb = new StringBuilder();
-            sb.Append("[0x").Append(offsets[0].ToString("X"));
-
-            for(int i = 1; i < offsets.Length; i++) {
-                sb.Append(", 0x").Append(offsets[i].ToString("X"));
+            sb.Append("[0x").Append(Offsets[0].ToString("X"));
+            for(int i = 1; i < Offsets.Length; i++) {
+                sb.Append(", 0x").Append(Offsets[i].ToString("X"));
             }
-
             return sb.Append(']').ToString();
+        }
+
+        public void ForceUpdate() {
+            Update();
         }
     }
 
-    public class StructPointer<T> : NodePointer where T : unmanaged {
+    public abstract class Pointer<T> : Pointer where T : unmanaged {
 
         public new T Old {
             get => (T)base.Old;
@@ -296,20 +290,17 @@ namespace LiveSplit.VoxSplitter {
             set => base.New = value;
         }
 
-        public StructPointer(Memory memory, Pointer parent, params int[] offsets) : this(memory, parent, EDerefType.Auto, offsets) { }
-        public StructPointer(Memory memory, Pointer parent, EDerefType derefType, params int[] offsets) : base(memory, parent, derefType, offsets) { }
+        public Pointer(Memory memory, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) { }
 
         protected override void Update() {
             Old = (T)(newValue ?? default(T));
-            New = Deref();
+            New = memory.game.Read<T>(DerefOffsets(), derefType);
         }
-
-        protected T Deref() => memory.game.Read<T>(DerefOffsets(), derefType);
     }
 
-    public enum EStringType { Auto, UTF8, UTF8Sized, UTF16, UTF16Sized }
+    public abstract class StringPointer : Pointer {
 
-    public class StringPointer : NodePointer {
+        public EStringType StringType { get; set; }
 
         public new string Old {
             get => (string)base.Old;
@@ -320,16 +311,67 @@ namespace LiveSplit.VoxSplitter {
             set => base.New = value;
         }
 
-        public EStringType StringType { get; set; }
-
-        public StringPointer(Memory memory, Pointer parent, params int[] offsets) : this(memory, parent, EDerefType.Auto, offsets) { }
-        public StringPointer(Memory memory, Pointer parent, EDerefType derefType, params int[] offsets) : base(memory, parent, derefType, offsets) { }
+        public StringPointer(Memory memory, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) { }
 
         protected override void Update() {
-            Old = (string)newValue ?? "";
-            New = Deref();
+            Old = (string)(newValue ?? default(string));
+            New = memory.game.ReadString(DerefOffsets(), StringType);
+        }
+    }
+
+    public interface IBasePointer : IPointer {
+        IntPtr Base { get; }
+    }
+
+    public class BasePointer<T> : Pointer<T>, IBasePointer where T : unmanaged {
+        public IntPtr Base { get; protected set; }
+
+        public BasePointer(Memory memory, IntPtr basePtr, params int[] offsets) : this(memory, basePtr, EDerefType.Auto, offsets) { }
+        public BasePointer(Memory memory, IntPtr basePtr, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) {
+            Base = basePtr;
         }
 
-        protected string Deref() => memory.game.ReadString(DerefOffsets(), StringType);
+        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.game.Read<IntPtr>(Base) : Base, Offsets);
+    }
+
+    public class BaseStringPointer : StringPointer, IBasePointer {
+        public IntPtr Base { get; protected set; }
+
+        public BaseStringPointer(Memory memory, IntPtr basePtr, params int[] offsets) : this(memory, basePtr, EDerefType.Auto, offsets) { }
+        public BaseStringPointer(Memory memory, IntPtr basePtr, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) {
+            Base = basePtr;
+        }
+
+        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.game.Read<IntPtr>(Base) : Base, Offsets);
+    }
+
+    public interface INodePointer : IPointer {
+        IPointer Parent { get; set; }
+    }
+
+    public class NodePointer<T> : Pointer<T>, INodePointer where T : unmanaged {
+
+        public IPointer Parent { get; set; }
+
+        public NodePointer(Memory memory, IPointer parent, params int[] offsets) : this(memory, parent, EDerefType.Auto, offsets) { }
+        public NodePointer(Memory memory, IPointer parent, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) {
+            Parent = parent;
+        }
+
+        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+    }
+
+    public enum EStringType { Auto, UTF8, UTF8Sized, UTF16, UTF16Sized }
+
+    public class NodeStringPointer : StringPointer, INodePointer {
+
+        public IPointer Parent { get; set; }
+
+        public NodeStringPointer(Memory memory, IPointer parent, params int[] offsets) : this(memory, parent, EDerefType.Auto, offsets) { }
+        public NodeStringPointer(Memory memory, IPointer parent, EDerefType derefType, params int[] offsets) : base(memory, derefType, offsets) {
+            Parent = parent;
+        }
+
+        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
     }
 }

@@ -10,7 +10,6 @@
     <AssemblyName>LiveSplit.VoxSplitter</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -19,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;LOG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,8 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -41,6 +39,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -55,17 +54,40 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory.cs" />
     <Compile Include="Component.cs" />
-    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="Memory\Memory.cs" />
+    <Compile Include="Memory\SignatureMemory.cs" />
+    <Compile Include="Memory\NestedPointerFactory.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="ManualComponents\FontTextComponent.cs" />
-    <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
-    <Compile Include="ManualComponents\ManualDoubleTimerSettings.cs">
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="MonoHelper\MonoHelper.cs" />
+    <Compile Include="Settings\Settings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="ManualComponents\ManualDoubleTimerSettings.Designer.cs">
-      <DependentUpon>ManualDoubleTimerSettings.cs</DependentUpon>
+    <Compile Include="Settings\Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings\TreeSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\TreeSettings.Designer.cs">
+      <DependentUpon>TreeSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SplitGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\SplitGenerator.Designer.cs">
+      <DependentUpon>SplitGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\TooltipSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\TooltipSettings.Designer.cs">
+      <DependentUpon>TooltipSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ManualComponents\FontTextComponent.cs" />
     <Compile Include="ManualComponents\ManualTextComponent.cs" />
     <Compile Include="ManualComponents\ManualTextSettings.cs">
       <SubType>UserControl</SubType>
@@ -80,38 +102,13 @@
     <Compile Include="ManualComponents\ManualTimerSettings.Designer.cs">
       <DependentUpon>ManualTimerSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Memory\Memory.cs" />
-    <Compile Include="Memory\NestedPointerFactory.cs" />
-    <Compile Include="Memory\SignatureMemory.cs" />
-    <Compile Include="MonoHelper\MonoHelper.cs" />
-    <Compile Include="NativeMethods.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Settings.cs">
+    <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\Settings.Designer.cs">
-      <DependentUpon>Settings.cs</DependentUpon>
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.Designer.cs">
+      <DependentUpon>ManualDoubleTimerSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\TooltipSettings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Settings\TooltipSettings.Designer.cs">
-      <DependentUpon>TooltipSettings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Settings\TreeSettings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Settings\TreeSettings.Designer.cs">
-      <DependentUpon>TreeSettings.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="MonoHelper\MonoHelper64.dll" />
-    <EmbeddedResource Include="MonoHelper\MonoHelper32.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Components\LiveSplit.VoxSplitter.dll" />
-    <None Include="Components\Version" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

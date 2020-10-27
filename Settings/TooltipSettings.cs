@@ -28,8 +28,8 @@ namespace LiveSplit.VoxSplitter {
                 TableLayoutPanel.RowStyles[1].Height = 0;
             }
 
-            if(PictureBox.Image != null && !PictureBox.Image.Equals(bmp)) {
-                PictureBox.Image.Dispose();
+            if(!PictureBox?.Image.Equals(bmp) ?? false) {
+                    PictureBox.Image.Dispose();
             }
 
             PictureBox.Image = bmp;

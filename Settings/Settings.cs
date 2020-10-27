@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LiveSplit.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,8 +13,6 @@ namespace LiveSplit.VoxSplitter {
     [TypeDescriptionProvider(typeof(AbstractControlDescriptionProvider<Settings, UserControl>))]
     public abstract partial class Settings : UserControl {
 
-        protected readonly Assembly inheritedAssembly;
-
         protected readonly Dictionary<string, HashSet<string>> presetsDict;
 
         public abstract HashSet<string> Splits { get; }
@@ -23,6 +22,8 @@ namespace LiveSplit.VoxSplitter {
 
         protected const string CustomPreset = "Custom";
         protected string lastPreset = "";
+
+        protected string version = "";
 
         protected readonly Control startControl;
         public int Start {
@@ -85,11 +86,19 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
-        public void SetGameVersion(string version) => LabelVersion.Text = "Version:" + Environment.NewLine + version;
+        public void SetGameVersion(string version) {
+            this.version = version;
+            Form form = FindForm();
+            if(form != null) {
+                SetFormVersion(form);
+            }
+        }
 
-        public Settings(Assembly assembly, SettingInfo? start, SettingInfo? reset, OptionsInfo? options) {
-            inheritedAssembly = assembly;
+        protected void SetFormVersion(Form form) {
+            form.Text = Factory.ExAssembly.FullComponentName() + (!String.IsNullOrEmpty(version) ? $" [{version}]" : "");
+        }
 
+        public Settings(SettingInfo? start, SettingInfo? reset, OptionsInfo? options) {
             InitializeComponent();
 
             Dock = DockStyle.Fill;
@@ -105,7 +114,7 @@ namespace LiveSplit.VoxSplitter {
             presetsDict = new Dictionary<string, HashSet<string>>();
 
             XmlDocument presetsXML = new XmlDocument();
-            presetsXML.Load(inheritedAssembly.GetManifestResourceStream(inheritedAssembly.Name() + ".Splits.Presets.xml"));
+            presetsXML.Load(Factory.ExAssembly.GetManifestResourceStream(Factory.ExAssembly.GetName().Name + ".Splits.Presets.xml"));
             SetupPresets(presetsXML.SelectNodes("Presets/Preset"));
 
             ComboBoxPreset.Items.AddRange(presetsDict.Keys.ToArray());
@@ -209,7 +218,7 @@ namespace LiveSplit.VoxSplitter {
 
         protected virtual void Settings_Load(object sender, EventArgs e) {
             Form form = FindForm();
-            form.Text = inheritedAssembly.FullComponentName();
+            SetFormVersion(form);
             form.MaximumSize = new Size(10000, 10000);
             UpdatePreset();
         }

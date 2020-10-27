@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -18,25 +17,21 @@ namespace LiveSplit.VoxSplitter {
             GameTime
         }
 
-        protected Assembly inheritedAssembly;
-
-        protected Logger logger;
-
         protected Settings settings;
         protected TimerModel timer;
         protected Memory memory;
+
+        protected Logger logger;
 
         protected virtual SettingInfo? Start => new SettingInfo(1, null);
         protected virtual SettingInfo? Reset => new SettingInfo(1, null);
         protected virtual OptionsInfo? Options => null;
         protected virtual EGameTime GameTime => EGameTime.None;
 
-        public Component(LiveSplitState state, Assembly assembly, bool hasLogger = true) {
-            logger = hasLogger ? new Logger(assembly.Name().Substring(10)) : null;
-            logger?.StartLogger();
-
-            inheritedAssembly = assembly;
-
+        public Component(LiveSplitState state) {
+            logger = new Logger();
+            logger.StartLogger();
+      
             timer = new TimerModel { CurrentState = state };
             timer.CurrentState.OnStart += OnStart;
             timer.CurrentState.OnSplit += OnSplit;
@@ -46,7 +41,7 @@ namespace LiveSplit.VoxSplitter {
                 timer.InitializeGameTime();
 
                 if(state.CurrentTimingMethod == TimingMethod.RealTime) {
-                    string gameName = inheritedAssembly.Description().Substring(17);
+                    string gameName = Factory.ExAssembly.Description().Substring(17);
                     DialogResult result = MessageBox.Show(
                         String.Concat(gameName, " uses Game Time as the main timing method.", Environment.NewLine,
                                       "LiveSplit is currently comparing against Real Time.", Environment.NewLine,
@@ -63,7 +58,7 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
-        public override string ComponentName => inheritedAssembly.FullComponentName();
+        public override string ComponentName => Factory.ExAssembly.FullComponentName();
         public override Control GetSettingsControl(LayoutMode mode) => settings;
         public override XmlNode GetSettings(XmlDocument document) => settings.GetSettings(document);
         public override void SetSettings(XmlNode settings) => this.settings.SetSettings(settings);
@@ -85,16 +80,17 @@ namespace LiveSplit.VoxSplitter {
             }
 
             if(timer.CurrentState.CurrentSplitIndex < 0) {
-                if(memory.Start(settings.Start)) {
+                if(settings.Start != 0 && memory.Start(settings.Start)) {
                     timer.Start();
+                    logger.Log("Start");
                 }
             } else {
-                if(memory.Reset(settings.Reset)) {
+                if(settings.Reset != 0 && memory.Reset(settings.Reset)) {
                     timer.Reset();
-                    logger?.Log("Reset");
+                    logger.Log("Reset");
                 } else if(memory.Split()) {
                     timer.Split();
-                    logger?.Log("Split");
+                    logger.Log("Split");
                 }
             }
         }
@@ -104,12 +100,12 @@ namespace LiveSplit.VoxSplitter {
         protected virtual void OnReset(object sender, TimerPhase e) => memory.OnReset(timer);
 
         public override void Dispose() {
-            logger?.Log("Dispose");
+            logger.Log("Dispose");
             timer.CurrentState.OnStart -= OnStart;
             timer.CurrentState.OnSplit -= OnSplit;
             timer.CurrentState.OnReset -= OnReset;
             memory.Dispose();
-            logger?.StopLogger();
+            logger.StopLogger();
         }
 
         public static IEnumerable<A> GetEnumAttributes<E, A>() where E : Enum where A : Attribute {

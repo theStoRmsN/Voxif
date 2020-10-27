@@ -23,6 +23,10 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
+        public static bool HasModule(this Process process, string module) {
+            return process.Modules().Any(m => m.ModuleName.Equals(module, StringComparison.OrdinalIgnoreCase));
+        }
+
         public static T Read<T>(this Process process, IntPtr address) where T : unmanaged {
             return process.Read<T>(address, EDerefType.Auto);
         }
@@ -36,14 +40,14 @@ namespace LiveSplit.VoxSplitter {
 
             int size = typeof(T) == typeof(IntPtr) ? (is64Bit ? 8 : 4) : sizeof(T);
             byte[] buffer = process.ReadBytes(address, size);
-            return buffer.To<T>();
+            return buffer?.To<T>() ?? default;
         }
 
         public static IntPtr DerefOffsets(this Process process, EDerefType derefType, IntPtr ptr, params int[] offsets) {
             if(ptr == default) { return default; }
-
+            
             if(offsets.Length == 0) { return ptr; }
-
+            
             bool is64Bit = derefType == EDerefType.Auto ? process.Is64Bit() : derefType == EDerefType.Bit64;
             for(int i = 0; i < offsets.Length - 1; i++) {
                 ptr = process.Read<IntPtr>(ptr + offsets[i], is64Bit);
@@ -109,7 +113,7 @@ namespace LiveSplit.VoxSplitter {
 
         public static IntPtr GetSymbolAddress(this Process process, string moduleName, string symbol) {
             try {
-                ProcessModuleWow64Safe module = process.Modules()?.FirstOrDefault(m => m.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
+                ProcessModuleWow64Safe module = process.Modules().FirstOrDefault(m => m.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase));
                 if(module == null) {
                     return default;
                 }
@@ -154,6 +158,12 @@ namespace LiveSplit.VoxSplitter {
         public unsafe static T To<T>(this byte[] bytes) where T : unmanaged {
             fixed(byte* p = bytes) {
                 return *(T*)p;
+            }
+        }
+
+        public unsafe static T To<T>(this byte[] bytes, int offset) where T : unmanaged {
+            fixed(byte* p = bytes) {
+                return *(T*)(p + offset);
             }
         }
 
@@ -213,7 +223,7 @@ namespace LiveSplit.VoxSplitter {
         // ASSEMBLY
         //
         public static string FullComponentName(this Assembly asm) {
-            string name = asm.Name().Substring(10);
+            string name = asm.GetName().Name.Substring(10);
             StringBuilder sb = new StringBuilder(name.Length * 2);
             sb.Append(name[0]);
             for(int i = 1; i < name.Length; i++) {
@@ -225,11 +235,9 @@ namespace LiveSplit.VoxSplitter {
             sb.Append(" Autosplitter v").Append(asm.GetName().Version.ToString(3));
             return sb.ToString();
         }
-        public static string GitURL(this Assembly asm) => (string)asm.GetType(asm.Name() + asm.Name().Substring(9) + "Factory").GetField("GitURL").GetRawConstantValue();
-        public static string GitMainURL(this Assembly asm) => Path.Combine(asm.GitURL(), asm.Name(), "main");
+        public static string GitMainURL(this Assembly asm) => Path.Combine("https://raw.githubusercontent.com/Voxelse", asm.GetName().Name, "main");
         public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
-        public static string ResourcesPath(this Assembly asm) => Path.Combine(Directory.GetCurrentDirectory(), "Components", asm.Name());
+        public static string ResourcesPath(this Assembly asm) => Path.Combine(asm.Location, asm.GetName().Name);
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
-        public static string Name(this Assembly asm) => asm.GetName().Name;
     }
 }

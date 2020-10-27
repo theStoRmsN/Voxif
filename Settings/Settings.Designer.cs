@@ -26,7 +26,7 @@ namespace LiveSplit.VoxSplitter {
         /// </summary>
         private void InitializeComponent() {
             this.TableLayoutSettings = new System.Windows.Forms.TableLayoutPanel();
-            this.LabelVersion = new System.Windows.Forms.Label();
+            this.LabelSettings = new System.Windows.Forms.Label();
             this.TableLayoutPanelSettings = new System.Windows.Forms.TableLayoutPanel();
             this.TableLayoutPanelStart = new System.Windows.Forms.TableLayoutPanel();
             this.LabelStart = new System.Windows.Forms.Label();
@@ -52,7 +52,7 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutSettings.ColumnCount = 2;
             this.TableLayoutSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 111F));
             this.TableLayoutSettings.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutSettings.Controls.Add(this.LabelVersion, 0, 0);
+            this.TableLayoutSettings.Controls.Add(this.LabelSettings, 0, 0);
             this.TableLayoutSettings.Controls.Add(this.TableLayoutPanelSettings, 1, 0);
             this.TableLayoutSettings.Controls.Add(this.LabelPreset, 0, 1);
             this.TableLayoutSettings.Controls.Add(this.TableLayoutPanelCheck, 1, 1);
@@ -62,21 +62,22 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutSettings.Margin = new System.Windows.Forms.Padding(0);
             this.TableLayoutSettings.Name = "TableLayoutSettings";
             this.TableLayoutSettings.RowCount = 2;
-            this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
+            this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 42F));
             this.TableLayoutSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
-            this.TableLayoutSettings.Size = new System.Drawing.Size(683, 90);
+            this.TableLayoutSettings.Size = new System.Drawing.Size(683, 94);
             this.TableLayoutSettings.TabIndex = 0;
             // 
-            // LabelVersion
+            // LabelSettings
             // 
-            this.LabelVersion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.LabelVersion.AutoSize = true;
-            this.LabelVersion.Location = new System.Drawing.Point(4, 10);
-            this.LabelVersion.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.LabelVersion.Name = "LabelVersion";
-            this.LabelVersion.Size = new System.Drawing.Size(103, 17);
-            this.LabelVersion.TabIndex = 0;
-            this.LabelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LabelSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.LabelSettings.AutoSize = true;
+            this.LabelSettings.Location = new System.Drawing.Point(4, 12);
+            this.LabelSettings.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.LabelSettings.Name = "LabelSettings";
+            this.LabelSettings.Size = new System.Drawing.Size(103, 17);
+            this.LabelSettings.TabIndex = 1;
+            this.LabelSettings.Text = "Settings:";
+            this.LabelSettings.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // TableLayoutPanelSettings
             // 
@@ -90,13 +91,13 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutPanelSettings.Controls.Add(this.TableLayoutPanelReset, 1, 0);
             this.TableLayoutPanelSettings.Controls.Add(this.TableLayoutPanelOptions, 2, 0);
             this.TableLayoutPanelSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TableLayoutPanelSettings.Location = new System.Drawing.Point(115, 4);
-            this.TableLayoutPanelSettings.Margin = new System.Windows.Forms.Padding(4);
+            this.TableLayoutPanelSettings.Location = new System.Drawing.Point(118, 4);
+            this.TableLayoutPanelSettings.Margin = new System.Windows.Forms.Padding(7, 4, 7, 4);
             this.TableLayoutPanelSettings.Name = "TableLayoutPanelSettings";
             this.TableLayoutPanelSettings.RowCount = 1;
             this.TableLayoutPanelSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutPanelSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.TableLayoutPanelSettings.Size = new System.Drawing.Size(564, 30);
+            this.TableLayoutPanelSettings.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
+            this.TableLayoutPanelSettings.Size = new System.Drawing.Size(558, 34);
             this.TableLayoutPanelSettings.TabIndex = 0;
             // 
             // TableLayoutPanelStart
@@ -108,12 +109,12 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutPanelStart.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TableLayoutPanelStart.Controls.Add(this.LabelStart, 0, 0);
             this.TableLayoutPanelStart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TableLayoutPanelStart.Location = new System.Drawing.Point(0, 0);
-            this.TableLayoutPanelStart.Margin = new System.Windows.Forms.Padding(0, 0, 13, 0);
+            this.TableLayoutPanelStart.Location = new System.Drawing.Point(7, 0);
+            this.TableLayoutPanelStart.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
             this.TableLayoutPanelStart.Name = "TableLayoutPanelStart";
             this.TableLayoutPanelStart.RowCount = 1;
             this.TableLayoutPanelStart.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutPanelStart.Size = new System.Drawing.Size(46, 30);
+            this.TableLayoutPanelStart.Size = new System.Drawing.Size(46, 34);
             this.TableLayoutPanelStart.TabIndex = 0;
             // 
             // LabelStart
@@ -123,7 +124,7 @@ namespace LiveSplit.VoxSplitter {
             this.LabelStart.Location = new System.Drawing.Point(4, 0);
             this.LabelStart.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelStart.Name = "LabelStart";
-            this.LabelStart.Size = new System.Drawing.Size(38, 30);
+            this.LabelStart.Size = new System.Drawing.Size(38, 34);
             this.LabelStart.TabIndex = 0;
             this.LabelStart.Text = "Start";
             this.LabelStart.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -137,12 +138,12 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutPanelReset.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TableLayoutPanelReset.Controls.Add(this.LabelReset, 0, 0);
             this.TableLayoutPanelReset.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TableLayoutPanelReset.Location = new System.Drawing.Point(59, 0);
-            this.TableLayoutPanelReset.Margin = new System.Windows.Forms.Padding(0, 0, 13, 0);
+            this.TableLayoutPanelReset.Location = new System.Drawing.Point(67, 0);
+            this.TableLayoutPanelReset.Margin = new System.Windows.Forms.Padding(7, 0, 13, 0);
             this.TableLayoutPanelReset.Name = "TableLayoutPanelReset";
             this.TableLayoutPanelReset.RowCount = 1;
             this.TableLayoutPanelReset.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutPanelReset.Size = new System.Drawing.Size(53, 30);
+            this.TableLayoutPanelReset.Size = new System.Drawing.Size(53, 34);
             this.TableLayoutPanelReset.TabIndex = 0;
             // 
             // LabelReset
@@ -152,7 +153,7 @@ namespace LiveSplit.VoxSplitter {
             this.LabelReset.Location = new System.Drawing.Point(4, 0);
             this.LabelReset.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelReset.Name = "LabelReset";
-            this.LabelReset.Size = new System.Drawing.Size(45, 30);
+            this.LabelReset.Size = new System.Drawing.Size(45, 34);
             this.LabelReset.TabIndex = 0;
             this.LabelReset.Text = "Reset";
             this.LabelReset.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -165,24 +166,24 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutPanelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.TableLayoutPanelOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.TableLayoutPanelOptions.Dock = System.Windows.Forms.DockStyle.Right;
-            this.TableLayoutPanelOptions.Location = new System.Drawing.Point(564, 0);
+            this.TableLayoutPanelOptions.Location = new System.Drawing.Point(558, 0);
             this.TableLayoutPanelOptions.Margin = new System.Windows.Forms.Padding(0);
             this.TableLayoutPanelOptions.Name = "TableLayoutPanelOptions";
             this.TableLayoutPanelOptions.RowCount = 1;
             this.TableLayoutPanelOptions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.TableLayoutPanelOptions.Size = new System.Drawing.Size(0, 30);
+            this.TableLayoutPanelOptions.Size = new System.Drawing.Size(0, 34);
             this.TableLayoutPanelOptions.TabIndex = 0;
             // 
             // LabelPreset
             // 
             this.LabelPreset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.LabelPreset.AutoSize = true;
-            this.LabelPreset.Location = new System.Drawing.Point(4, 55);
+            this.LabelPreset.Location = new System.Drawing.Point(4, 59);
             this.LabelPreset.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelPreset.Name = "LabelPreset";
             this.LabelPreset.Size = new System.Drawing.Size(103, 17);
             this.LabelPreset.TabIndex = 0;
-            this.LabelPreset.Text = "Preset:";
+            this.LabelPreset.Text = "Presets:";
             this.LabelPreset.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // TableLayoutPanelCheck
@@ -198,7 +199,7 @@ namespace LiveSplit.VoxSplitter {
             this.TableLayoutPanelCheck.Controls.Add(this.ButtonCheckAll, 2, 0);
             this.TableLayoutPanelCheck.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TableLayoutPanelCheck.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.TableLayoutPanelCheck.Location = new System.Drawing.Point(118, 44);
+            this.TableLayoutPanelCheck.Location = new System.Drawing.Point(118, 48);
             this.TableLayoutPanelCheck.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.TableLayoutPanelCheck.Name = "TableLayoutPanelCheck";
             this.TableLayoutPanelCheck.RowCount = 1;
@@ -253,7 +254,7 @@ namespace LiveSplit.VoxSplitter {
             this.Controls.Add(this.TableLayoutSettings);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Settings";
-            this.Size = new System.Drawing.Size(683, 90);
+            this.Size = new System.Drawing.Size(683, 94);
             this.Load += new System.EventHandler(this.Settings_Load);
             this.TableLayoutSettings.ResumeLayout(false);
             this.TableLayoutSettings.PerformLayout();
@@ -272,7 +273,6 @@ namespace LiveSplit.VoxSplitter {
 
         #endregion
         protected TableLayoutPanel TableLayoutSettings;
-        protected Label LabelVersion;
         protected TableLayoutPanel TableLayoutPanelSettings;
         protected TableLayoutPanel TableLayoutPanelStart;
         protected Label LabelStart;
@@ -284,5 +284,6 @@ namespace LiveSplit.VoxSplitter {
         protected ComboBox ComboBoxPreset;
         protected Button ButtonUncheckAll;
         protected Button ButtonCheckAll;
+        protected Label LabelSettings;
     }
 }

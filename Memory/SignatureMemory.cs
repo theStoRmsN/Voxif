@@ -37,9 +37,9 @@ namespace LiveSplit.VoxSplitter {
                     scanData.ResetPointers();
                     ScanMemory();
                     OnScanDone();
-                    logger?.Log("Scan task terminated");
+                    logger.Log("Scan task terminated");
                 } catch {
-                    logger?.Log("Scan task aborted");
+                    logger.Log("Scan task aborted");
                 }
             });
         }
@@ -49,7 +49,7 @@ namespace LiveSplit.VoxSplitter {
         protected virtual void OnScanDone() { }
 
         protected virtual void ScanMemory() {
-            logger?.Log("Scanning memory");
+            logger.Log("Scanning memory");
             while(true) {
                 token.ThrowIfCancellationRequested();
 
@@ -65,7 +65,7 @@ namespace LiveSplit.VoxSplitter {
                             }
                         }
                     } else {
-                        ProcessModuleWow64Safe module = game.Modules()?.FirstOrDefault(m => m.ModuleName == moduleScan.Key);
+                        ProcessModuleWow64Safe module = game.Modules().FirstOrDefault(m => m.ModuleName == moduleScan.Key);
                         if(module == null) {
                             continue;
                         }
@@ -80,7 +80,7 @@ namespace LiveSplit.VoxSplitter {
                     continue;
                 }
 
-                logger?.Log("Done scanning");
+                logger.Log("Done scanning");
                 break;
             }
         }
@@ -101,7 +101,7 @@ namespace LiveSplit.VoxSplitter {
                         if((sig.Pointer = scanner.Scan(vScan)) != default) {
                             sig.Verion = vScan.Version;
                             string verString = sig.Scans.Length > 1 ? " with " + vScan.Version + " version" : "";
-                            logger?.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
+                            logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
                         }
                     }
                 } else {
@@ -131,20 +131,12 @@ namespace LiveSplit.VoxSplitter {
                             sig.Pointer = ptr;
                             sig.Verion = vScan.Version;
                             string verString = sig.Scans.Length > 1 ? " with " + vScan.Version + " version" : "";
-                            logger?.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
+                            logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
                             break;
                         }
                     }
                 }
             }
-        }
-
-        protected IntPtr FromRelativeAddress(IntPtr asmAddress) {
-            return game.Read<IntPtr>(asmAddress + 0x4 + game.ReadValue<int>(asmAddress));
-        }
-        
-        protected IntPtr FromAbsoluteAddress(IntPtr asmAddress) {
-            return game.Read<IntPtr>(game.Read<IntPtr>(asmAddress));
         }
 
         public override void Dispose() => tokenSource.Cancel();
