@@ -37,9 +37,9 @@ namespace LiveSplit.VoxSplitter {
                     scanData.ResetPointers();
                     ScanMemory();
                     OnScanDone();
-                    logger.Log("Scan task terminated");
+                    Logger.Log("Scan task terminated");
                 } catch {
-                    logger.Log("Scan task aborted");
+                    Logger.Log("Scan task aborted");
                 }
             });
         }
@@ -49,7 +49,7 @@ namespace LiveSplit.VoxSplitter {
         protected virtual void OnScanDone() { }
 
         protected virtual void ScanMemory() {
-            logger.Log("Scanning memory");
+            Logger.Log("Scanning memory");
             while(true) {
                 token.ThrowIfCancellationRequested();
 
@@ -57,19 +57,19 @@ namespace LiveSplit.VoxSplitter {
                     token.ThrowIfCancellationRequested();
 
                     if(String.IsNullOrEmpty(moduleScan.Key)) {
-                        foreach(MemoryBasicInformation page in game.MemoryPages(scanData.AllPages)) {
+                        foreach(MemoryBasicInformation page in Game.MemoryPages(scanData.AllPages)) {
                             token.ThrowIfCancellationRequested();
-                            SearchAllSigs(moduleScan.Value, new SignatureScanner(game, page.BaseAddress, (int)page.RegionSize));
+                            SearchAllSigs(moduleScan.Value, new SignatureScanner(Game, page.BaseAddress, (int)page.RegionSize));
                             if(scanData.AllSignaturesFound) {
                                 break;
                             }
                         }
                     } else {
-                        ProcessModuleWow64Safe module = game.Modules().FirstOrDefault(m => m.ModuleName == moduleScan.Key);
+                        ProcessModuleWow64Safe module = Game.Modules().FirstOrDefault(m => m.ModuleName == moduleScan.Key);
                         if(module == null) {
                             continue;
                         }
-                        SearchAllSigs(moduleScan.Value, new SignatureScanner(game, module.BaseAddress, module.ModuleMemorySize));
+                        SearchAllSigs(moduleScan.Value, new SignatureScanner(Game, module.BaseAddress, module.ModuleMemorySize));
                     }
                 }
 
@@ -80,7 +80,7 @@ namespace LiveSplit.VoxSplitter {
                     continue;
                 }
 
-                logger.Log("Done scanning");
+                Logger.Log("Done scanning");
                 break;
             }
         }
@@ -101,7 +101,7 @@ namespace LiveSplit.VoxSplitter {
                         if((sig.Pointer = scanner.Scan(vScan)) != default) {
                             sig.Verion = vScan.Version;
                             string verString = sig.Scans.Length > 1 ? " with " + vScan.Version + " version" : "";
-                            logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
+                            Logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
                         }
                     }
                 } else {
@@ -112,15 +112,15 @@ namespace LiveSplit.VoxSplitter {
                         foreach(IntPtr ptr in scanner.ScanAll(vScan)) {
                             token.ThrowIfCancellationRequested();
 
-                            IntPtr resPtr = game.DerefOffsets(EDerefType.Auto, game.Read<IntPtr>(ptr), sig.ValueTarget?.offsets);
+                            IntPtr resPtr = Game.DerefOffsets(EDerefType.Auto, Game.Read<IntPtr>(ptr), sig.ValueTarget?.offsets);
                             object res;
                             if(targetType == typeof(string)) {
-                                res = game.ReadString(resPtr, EStringType.Auto);
+                                res = Game.ReadString(resPtr, EStringType.Auto);
                             } else {
-                                object[] args = new object[] { game, resPtr, Activator.CreateInstance(targetType) };
+                                object[] args = new object[] { Game, resPtr, Activator.CreateInstance(targetType) };
                                 typeof(ExtensionMethods).GetMethods().First(m => m.Name == "Read")
                                                         .MakeGenericMethod(targetType)
-                                                        .Invoke(game, args);
+                                                        .Invoke(Game, args);
                                 res = args[2];
                             }
 
@@ -131,7 +131,7 @@ namespace LiveSplit.VoxSplitter {
                             sig.Pointer = ptr;
                             sig.Verion = vScan.Version;
                             string verString = sig.Scans.Length > 1 ? " with " + vScan.Version + " version" : "";
-                            logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
+                            Logger.Log(kvp.Key + " Found : " + sig.Pointer.ToString("X") + verString);
                             break;
                         }
                     }

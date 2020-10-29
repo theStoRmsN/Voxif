@@ -82,7 +82,7 @@ namespace LiveSplit.VoxSplitter {
                 try {
                     //Wait for mono data as it may not be fully initialized right after launch
                     //TODO find a clean way to know when datas are fully loaded
-                    int msSinceGameStart = (int)(DateTime.Now - memory.game.StartTime).TotalMilliseconds;
+                    int msSinceGameStart = (int)(DateTime.Now - memory.Game.StartTime).TotalMilliseconds;
                     if(msSinceGameStart < msToWaitAfterStart) {
                         int msToWait = msToWaitAfterStart - msSinceGameStart;
                         Log($"Game just launched, wait {msToWait}ms");
@@ -102,20 +102,20 @@ namespace LiveSplit.VoxSplitter {
         protected void InitMono() {
             //Log(memory.game.Is64Bit()+"");
 
-            string monoName = memory.game.Modules().FirstOrDefault(
+            string monoName = memory.Game.Modules().FirstOrDefault(
                 m => m.ModuleName.Equals(monoV1Assembly)
                   || m.ModuleName.Equals(monoV2Assembly)
                   || m.ModuleName.Equals(il2cppAssembly)).ModuleName;
 
             if(monoName.StartsWith("mono")) {
                 // TODO                                                                        Change v1 32bit
-                MonoInfo = monoName.Equals(monoV1Assembly) ? (memory.game.Is64Bit() ? monoV1_64 : monoV1_64)
-                                                           : (memory.game.Is64Bit() ? monoV2_64 : monoV2_32);
+                MonoInfo = monoName.Equals(monoV1Assembly) ? (memory.Game.Is64Bit() ? monoV1_64 : monoV1_64)
+                                                           : (memory.Game.Is64Bit() ? monoV2_64 : monoV2_32);
             } else {
-                MonoInfo = memory.game.Is64Bit() ? il2cpp_64 : il2cpp_64;
+                MonoInfo = memory.Game.Is64Bit() ? il2cpp_64 : il2cpp_64;
                 SigScanTarget signature = new SigScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05 ???????? 48 83 3C 03");
-                ProcessModuleWow64Safe module = memory.game.Modules().First(m => m.ModuleName == il2cppAssembly);
-                SignatureScanner scanner = new SignatureScanner(memory.game, module.BaseAddress, module.ModuleMemorySize);
+                ProcessModuleWow64Safe module = memory.Game.Modules().First(m => m.ModuleName == il2cppAssembly);
+                SignatureScanner scanner = new SignatureScanner(memory.Game, module.BaseAddress, module.ModuleMemorySize);
                 il2cppTypeInfo = scanner.Scan(signature);
             }
 
@@ -124,23 +124,23 @@ namespace LiveSplit.VoxSplitter {
 
         public IntPtr GetModuleImage(string moduleName) {
             IntPtr assemblies;
-            IntPtr relativeAsm = MonoInfo.il2cpp ? memory.game.GetSymbolAddress(MonoInfo.assembly, "il2cpp_domain_get_assemblies") + 0xA
-                                                 : memory.game.GetSymbolAddress(MonoInfo.assembly, "mono_assembly_foreach") + 0x25;
-            assemblies = memory.game.Read<IntPtr>(memory.FromRelativeAddress(relativeAsm));
+            IntPtr relativeAsm = MonoInfo.il2cpp ? memory.Game.GetSymbolAddress(MonoInfo.assembly, "il2cpp_domain_get_assemblies") + 0xA
+                                                 : memory.Game.GetSymbolAddress(MonoInfo.assembly, "mono_assembly_foreach") + 0x25;
+            assemblies = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(relativeAsm));
             while(true) {
                 IntPtr image = GetImage(assemblies);
                 string assemblyName = GetImageName(image);
                 if(assemblyName.Equals(moduleName)) {
                     Log("Module " + image.ToString("X") + " " + assemblyName);
-                    return MonoInfo.il2cpp ? memory.game.Read<IntPtr>(image) : image;
+                    return MonoInfo.il2cpp ? memory.Game.Read<IntPtr>(image) : image;
                 }
                 if(MonoInfo.il2cpp) {
                     assemblies += MonoInfo.pointer_size;
-                    if(memory.game.Read<IntPtr>(assemblies) == default) {
+                    if(memory.Game.Read<IntPtr>(assemblies) == default) {
                         return default;
                     }
                 } else {
-                    assemblies = memory.game.Read<IntPtr>(assemblies + MonoInfo.pointer_size);
+                    assemblies = memory.Game.Read<IntPtr>(assemblies + MonoInfo.pointer_size);
                     if(assemblies == default) {
                         return default;
                     }
@@ -152,7 +152,7 @@ namespace LiveSplit.VoxSplitter {
             if(MonoInfo.il2cpp) {
                 int offset = GetClassOffsetCpp(image);
                 int count = GetClassCount(image);
-                IntPtr table = memory.game.Read<IntPtr>(memory.FromRelativeAddress(il2cppTypeInfo));
+                IntPtr table = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(il2cppTypeInfo));
                 for(int i = 0; i < count; i++) {
                     IntPtr klass = GetClass(table, offset + i);
                     if(ClassFound(klass, classToFind)) {
@@ -244,48 +244,48 @@ namespace LiveSplit.VoxSplitter {
         }
 
         public IntPtr GetImage(IntPtr module) {
-            if(!MonoInfo.il2cpp) { module = memory.game.Read<IntPtr>(module); }
-            return memory.game.Read<IntPtr>(module + MonoInfo.assembly_image);
+            if(!MonoInfo.il2cpp) { module = memory.Game.Read<IntPtr>(module); }
+            return memory.Game.Read<IntPtr>(module + MonoInfo.assembly_image);
         }
         public string GetImageName(IntPtr image) => GetName(image + MonoInfo.image_name);
         public string GetClassName(IntPtr klass) => GetName(klass + MonoInfo.class_name);
         public string GetFieldName(IntPtr field) => GetName(field + MonoInfo.field_name);
-        public string GetName(IntPtr ptr) => memory.game.ReadString(memory.game.Read<IntPtr>(ptr), EStringType.Auto);
-        public IntPtr GetClass(IntPtr table, int offset) => memory.game.Read<IntPtr>(table + offset * MonoInfo.pointer_size);
+        public string GetName(IntPtr ptr) => memory.Game.ReadString(memory.Game.Read<IntPtr>(ptr), EStringType.Auto);
+        public IntPtr GetClass(IntPtr table, int offset) => memory.Game.Read<IntPtr>(table + offset * MonoInfo.pointer_size);
         public IntPtr GetClassOffsetMono(IntPtr image) => image + MonoInfo.image_class_offset;
-        public int GetClassOffsetCpp(IntPtr image) => memory.game.ReadValue<int>(image + MonoInfo.image_class_offset);
-        public int GetClassCount(IntPtr image) => memory.game.ReadValue<int>(image + MonoInfo.image_class_count);
-        public IntPtr GetCacheTable(IntPtr cache) => memory.game.Read<IntPtr>(cache + MonoInfo.image_cache_table);
-        public IntPtr GetParent(IntPtr klass) => memory.game.Read<IntPtr>(klass + MonoInfo.class_parent);
-        public bool HasParent(IntPtr klass, out IntPtr parent) => memory.game.ReadPointer(klass + MonoInfo.class_parent, out parent);
+        public int GetClassOffsetCpp(IntPtr image) => memory.Game.ReadValue<int>(image + MonoInfo.image_class_offset);
+        public int GetClassCount(IntPtr image) => memory.Game.ReadValue<int>(image + MonoInfo.image_class_count);
+        public IntPtr GetCacheTable(IntPtr cache) => memory.Game.Read<IntPtr>(cache + MonoInfo.image_cache_table);
+        public IntPtr GetParent(IntPtr klass) => memory.Game.Read<IntPtr>(klass + MonoInfo.class_parent);
+        public bool HasParent(IntPtr klass, out IntPtr parent) => memory.Game.ReadPointer(klass + MonoInfo.class_parent, out parent);
         public int GetFieldCount(IntPtr klass) {
             IntPtr baseKlass = klass;
             if(MonoInfo.assembly == monoV2Assembly) {
-                while((memory.game.ReadValue<byte>(baseKlass + MonoInfo.class_basetype) & TYPE_ATTRIBUTE_VISIBILITY_MASK) == MONO_CLASS_GINST) {
+                while((memory.Game.ReadValue<byte>(baseKlass + MonoInfo.class_basetype) & TYPE_ATTRIBUTE_VISIBILITY_MASK) == MONO_CLASS_GINST) {
                     baseKlass = GetGenericClass(klass);
                 }
             }
-            return memory.game.ReadValue<int>(baseKlass + MonoInfo.class_fields_count);
+            return memory.Game.ReadValue<int>(baseKlass + MonoInfo.class_fields_count);
         }
-        public IntPtr GetGenericClass(IntPtr klass) => memory.game.Read<IntPtr>(memory.game.Read<IntPtr>(klass + MonoInfo.class_generic_class));
-        public bool HasFields(IntPtr klass, out IntPtr field) => memory.game.ReadPointer(klass + MonoInfo.class_fields, out field);
+        public IntPtr GetGenericClass(IntPtr klass) => memory.Game.Read<IntPtr>(memory.Game.Read<IntPtr>(klass + MonoInfo.class_generic_class));
+        public bool HasFields(IntPtr klass, out IntPtr field) => memory.Game.ReadPointer(klass + MonoInfo.class_fields, out field);
         public bool FieldIsStatic(IntPtr field) => (GetTypeAttributes(GetType(field)) & FIELD_ATTRIBUTE_STATIC) != 0;
-        public int GetFieldOffset(IntPtr field) => memory.game.ReadValue<int>(field + MonoInfo.field_offset);
-        public ushort GetTypeAttributes(IntPtr type) => memory.game.ReadValue<ushort>(type + MonoInfo.type_attrs);
-        public IntPtr GetNextClassCache(IntPtr klass) => memory.game.Read<IntPtr>(klass + MonoInfo.class_next_class_cache);
-        public IntPtr GetVTable(IntPtr klass) => memory.game.Read<IntPtr>(memory.game.Read<IntPtr>(klass + MonoInfo.class_vtable) + MonoInfo.pointer_size);
-        public IntPtr GetType(IntPtr field) => memory.game.Read<IntPtr>(field + MonoInfo.field_type);
+        public int GetFieldOffset(IntPtr field) => memory.Game.ReadValue<int>(field + MonoInfo.field_offset);
+        public ushort GetTypeAttributes(IntPtr type) => memory.Game.ReadValue<ushort>(type + MonoInfo.type_attrs);
+        public IntPtr GetNextClassCache(IntPtr klass) => memory.Game.Read<IntPtr>(klass + MonoInfo.class_next_class_cache);
+        public IntPtr GetVTable(IntPtr klass) => memory.Game.Read<IntPtr>(memory.Game.Read<IntPtr>(klass + MonoInfo.class_vtable) + MonoInfo.pointer_size);
+        public IntPtr GetType(IntPtr field) => memory.Game.Read<IntPtr>(field + MonoInfo.field_type);
         public IntPtr GetStaticData(IntPtr data) {
             if(MonoInfo.il2cpp) {
-                return memory.game.Read<IntPtr>(memory.game.Read<IntPtr>(data + 0x10) + 0xB8);
+                return memory.Game.Read<IntPtr>(memory.Game.Read<IntPtr>(data + 0x10) + 0xB8);
             } else {
                 return MonoInfo.assembly == monoV1Assembly
-                    ? memory.game.Read<IntPtr>(GetVTable(data) + MonoInfo.vtable_static_data)
-                    : memory.game.Read<IntPtr>(GetVTable(data) + MonoInfo.vtable_static_data + memory.game.ReadValue<int>(data + MonoInfo.vtable_static_data_offset) * MonoInfo.pointer_size);
+                    ? memory.Game.Read<IntPtr>(GetVTable(data) + MonoInfo.vtable_static_data)
+                    : memory.Game.Read<IntPtr>(GetVTable(data) + MonoInfo.vtable_static_data + memory.Game.ReadValue<int>(data + MonoInfo.vtable_static_data_offset) * MonoInfo.pointer_size);
             }
         }
 
-        protected void Log(string msg) => memory.logger.Log("[Mono] " + msg);
+        protected void Log(string msg) => memory.Logger.Log("[Mono] " + msg);
 
         protected void ExitMono() {
             Log("Exit");

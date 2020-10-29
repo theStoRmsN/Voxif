@@ -18,9 +18,9 @@ namespace LiveSplit.VoxSplitter {
             this.memory = memory;
             this.derefType = derefType;
             if(moduleName == null) {
-                moduleBase = memory.game.Modules()[0].BaseAddress;
+                moduleBase = memory.Game.Modules()[0].BaseAddress;
             } else {
-                moduleBase = memory.game.Modules().FirstOrDefault(
+                moduleBase = memory.Game.Modules().FirstOrDefault(
                     m => m.ModuleName.Equals(moduleName, StringComparison.OrdinalIgnoreCase))?.BaseAddress ?? default;
             }
         }
@@ -294,7 +294,7 @@ namespace LiveSplit.VoxSplitter {
 
         protected override void Update() {
             Old = (T)(newValue ?? default(T));
-            New = memory.game.Read<T>(DerefOffsets(), derefType);
+            New = memory.Game.Read<T>(DerefOffsets(), derefType);
         }
     }
 
@@ -315,7 +315,7 @@ namespace LiveSplit.VoxSplitter {
 
         protected override void Update() {
             Old = (string)(newValue ?? default(string));
-            New = memory.game.ReadString(DerefOffsets(), StringType);
+            New = memory.Game.ReadString(DerefOffsets(), StringType);
         }
     }
 
@@ -331,7 +331,7 @@ namespace LiveSplit.VoxSplitter {
             Base = basePtr;
         }
 
-        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.game.Read<IntPtr>(Base) : Base, Offsets);
+        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
     }
 
     public class BaseStringPointer : StringPointer, IBasePointer {
@@ -342,7 +342,7 @@ namespace LiveSplit.VoxSplitter {
             Base = basePtr;
         }
 
-        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.game.Read<IntPtr>(Base) : Base, Offsets);
+        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
     }
 
     public interface INodePointer : IPointer {
@@ -358,7 +358,7 @@ namespace LiveSplit.VoxSplitter {
             Parent = parent;
         }
 
-        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
     }
 
     public enum EStringType { Auto, UTF8, UTF8Sized, UTF16, UTF16Sized }
@@ -372,6 +372,6 @@ namespace LiveSplit.VoxSplitter {
             Parent = parent;
         }
 
-        protected override IntPtr DerefOffsets() => memory.game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
     }
 }
