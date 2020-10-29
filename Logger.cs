@@ -8,7 +8,7 @@ namespace LiveSplit.VoxSplitter {
     public class Logger {
 #if LOG
 #if !DEBUG
-        private readonly string logFile = Factory.ExAssembly.Name().Substring(10);
+        private readonly string logFile = "_" + Factory.ExAssembly.GetName().Name.Substring(10) + ".log";
         private const int LinesMax = 10000;
         private const int LinesErase = 500;
 
