@@ -19,7 +19,7 @@ namespace LiveSplit.VoxSplitter {
         private readonly ManualResetEvent manualEvent = new ManualResetEvent(false);
 #endif
         private readonly Dictionary<string, Stopwatch> swList = new Dictionary<string, Stopwatch>();
-        private readonly Dictionary<string, (int, double)> swAvg = new Dictionary<string, (int, double)>();
+        private readonly Dictionary<string, Tuple<int, double>> swAvg = new Dictionary<string, Tuple<int, double>>();
 #endif
 
         public void StartLogger() {
@@ -150,7 +150,7 @@ namespace LiveSplit.VoxSplitter {
 #if LOG
             swList.Add(key, Stopwatch.StartNew());
             if(!swAvg.ContainsKey(key)) {
-                swAvg.Add(key, (0, 0));
+                swAvg.Add(key, new Tuple<int, double>(0, 0));
             }
 #endif
         }
@@ -158,10 +158,8 @@ namespace LiveSplit.VoxSplitter {
         public void StopAverageBenchmark(string key, string prefix = "") {
 #if LOG
             swList[key].Stop();
-            (int, double) tuple = swAvg[key];
-            tuple.Item2 += swList[key].Elapsed.TotalMilliseconds;
-            tuple.Item1++;
-            swAvg[key] = tuple;
+            Tuple<int, double> tuple = swAvg[key];
+            swAvg[key] = new Tuple<int, double>(tuple.Item1 + 1, tuple.Item2 + swList[key].Elapsed.TotalMilliseconds);
             Log(prefix + swList[key].Elapsed.ToString("mm:ss.fffffff") + " Average " + (tuple.Item2 / tuple.Item1));
             swList.Remove(key);
 #endif

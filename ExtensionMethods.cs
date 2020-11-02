@@ -30,11 +30,9 @@ namespace LiveSplit.VoxSplitter {
         public static T Read<T>(this Process process, IntPtr address) where T : unmanaged {
             return process.Read<T>(address, EDerefType.Auto);
         }
-
         public static T Read<T>(this Process process, IntPtr address, EDerefType derefType) where T : unmanaged {
             return process.Read<T>(address, derefType == EDerefType.Auto ? process.Is64Bit() : derefType == EDerefType.Bit64);
         }
-
         public unsafe static T Read<T>(this Process process, IntPtr address, bool is64Bit) where T : unmanaged {
             if(address == default) { return default; }
 
@@ -43,6 +41,9 @@ namespace LiveSplit.VoxSplitter {
             return buffer?.To<T>() ?? default;
         }
 
+        public static IntPtr DerefOffsets(this Process process, IntPtr ptr, params int[] offsets) {
+            return DerefOffsets(process, EDerefType.Auto, ptr, offsets);
+        }
         public static IntPtr DerefOffsets(this Process process, EDerefType derefType, IntPtr ptr, params int[] offsets) {
             if(ptr == default) { return default; }
             

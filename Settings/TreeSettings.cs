@@ -85,6 +85,11 @@ namespace LiveSplit.VoxSplitter {
             Tips = defTips;
 
             ComboBoxPreset.SelectedIndex = defPreset;
+
+            XmlElement splitterSetting = state.Run?.AutoSplitterSettings;
+            if(splitterSetting != null) {
+                SetSettings(splitterSetting);
+            }
         }
 
         protected void SetupSettings(XmlNodeList nodeList, string parent = null) {
@@ -371,7 +376,7 @@ namespace LiveSplit.VoxSplitter {
             }
 
             HashSet<string> presetList = presetsDict[ComboBoxPreset.SelectedItem.ToString()];
-            splits.Set(presetList.ToHashSet());
+            splits.Set(presetList);
 
             bool hasChangedSetting = false;
             TreeCustomSettings.AfterCheck -= TreeCustomSettings_AfterCheck;
@@ -390,7 +395,7 @@ namespace LiveSplit.VoxSplitter {
 
         protected override void CheckAll(bool value) {
             if(value) {
-                splits.Set(settingsDict.Where(s => !parentList.Contains(s.Key)).Select(s => s.Key).ToHashSet());
+                splits.Set(settingsDict.Where(s => !parentList.Contains(s.Key)).Select(s => s.Key));
             } else {
                 splits.Clear();
             }
@@ -712,7 +717,7 @@ namespace LiveSplit.VoxSplitter {
                 this.generator = generator;
             }
 
-            public void Set(HashSet<T> set) {
+            public void Set(IEnumerable<T> set) {
                 base.Clear();
                 UnionWith(set);
                 SetText();

@@ -25,7 +25,7 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
-        protected HashSet<IPointer> BasePointers() => nodeLink.Keys.Where(n => n is IBasePointer).ToHashSet();
+        protected HashSet<IPointer> BasePointers() => new HashSet<IPointer>(nodeLink.Keys.Where(n => n is IBasePointer));
 
         public Pointer<T> Make<T>(int moduleOffset, params int[] offsets) where T : unmanaged {
             return Make<T>(derefType, moduleBase + moduleOffset, offsets);

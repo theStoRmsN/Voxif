@@ -105,14 +105,14 @@ namespace LiveSplit.VoxSplitter {
                         }
                     }
                 } else {
-                    Type targetType = sig.ValueTarget?.target.GetType();
+                    Type targetType = sig.ValueTarget.Item1.GetType();
                     foreach(VersionScan vScan in sig.Scans) {
                         token.ThrowIfCancellationRequested();
 
                         foreach(IntPtr ptr in scanner.ScanAll(vScan)) {
                             token.ThrowIfCancellationRequested();
 
-                            IntPtr resPtr = Game.DerefOffsets(EDerefType.Auto, Game.Read<IntPtr>(ptr), sig.ValueTarget?.offsets);
+                            IntPtr resPtr = Game.DerefOffsets(EDerefType.Auto, Game.Read<IntPtr>(ptr), sig.ValueTarget.Item2);
                             object res;
                             if(targetType == typeof(string)) {
                                 res = Game.ReadString(resPtr, EStringType.Auto);
@@ -124,7 +124,7 @@ namespace LiveSplit.VoxSplitter {
                                 res = args[2];
                             }
 
-                            if(!res.Equals(sig.ValueTarget?.target)) {
+                            if(!res.Equals(sig.ValueTarget.Item1)) {
                                 continue;
                             }
 
@@ -139,7 +139,7 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
-        public override void Dispose() => tokenSource.Cancel();
+        public override void Dispose() => tokenSource?.Cancel();
     }
 
     public class ScannableData : Dictionary<string, Dictionary<string, SignatureHolder>> {
@@ -169,7 +169,7 @@ namespace LiveSplit.VoxSplitter {
         public string Verion { get; set; } = String.Empty;
         public IntPtr Pointer { get; set; } = default;
         public bool DoScan { get; set; } = true;
-        public (object target, int[] offsets)? ValueTarget { get; set; } = null;
+        public Tuple<object, int[]> ValueTarget { get; set; } = null;
 
         public bool Found => Pointer != default || !DoScan;
     }
