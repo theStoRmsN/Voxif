@@ -584,7 +584,8 @@ namespace LiveSplit.VoxSplitter {
                         maxWidth = width;
                     }
                 }
-                splitGen.ListView.Size = new Size(maxWidth + 20, splitGen.ListView.Items[0].Bounds.Height * (state.Run.Count + 2));
+                splitGen.ListView.Columns[0].Width = maxWidth + 10;
+                splitGen.ListView.Size = new Size(maxWidth + 30, (int)Math.Min(splitGen.ListView.Items[0].Bounds.Height * (splitGen.ListView.Items.Count+1), Screen.PrimaryScreen.Bounds.Height * .75f));
                 if(splitGen.ShowDialog() != DialogResult.OK) {
                     return;
                 }

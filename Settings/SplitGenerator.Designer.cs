@@ -23,35 +23,13 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.ListView = new LiveSplit.VoxSplitter.NewListView();
             this.TableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.Button = new System.Windows.Forms.Button();
             this.LabelHelp = new System.Windows.Forms.Label();
+            this.Button = new System.Windows.Forms.Button();
+            this.ListView = new LiveSplit.VoxSplitter.NewListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.TableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // ListView
-            // 
-            this.ListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
-            this.ListView.AllowDrop = true;
-            this.TableLayoutPanel.SetColumnSpan(this.ListView, 3);
-            this.ListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ListView.HideSelection = false;
-            this.ListView.LabelEdit = true;
-            this.ListView.LabelWrap = false;
-            this.ListView.Location = new System.Drawing.Point(3, 3);
-            this.ListView.MinimumSize = new System.Drawing.Size(300, 300);
-            this.ListView.MultiSelect = false;
-            this.ListView.Name = "ListView";
-            this.ListView.ShowGroups = false;
-            this.ListView.Size = new System.Drawing.Size(366, 386);
-            this.ListView.TabIndex = 0;
-            this.ListView.UseCompatibleStateImageBehavior = false;
-            this.ListView.View = System.Windows.Forms.View.List;
-            this.ListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.ListView_ItemDrag);
-            this.ListView.Click += new System.EventHandler(this.ListView_Click);
-            this.ListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListView_DragEnter);
-            this.ListView.DragOver += new System.Windows.Forms.DragEventHandler(this.ListView_DragOver);
             // 
             // TableLayoutPanel
             // 
@@ -74,6 +52,19 @@
             this.TableLayoutPanel.Size = new System.Drawing.Size(372, 432);
             this.TableLayoutPanel.TabIndex = 1;
             // 
+            // LabelHelp
+            // 
+            this.LabelHelp.AutoSize = true;
+            this.TableLayoutPanel.SetColumnSpan(this.LabelHelp, 2);
+            this.LabelHelp.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.LabelHelp.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.LabelHelp.Location = new System.Drawing.Point(3, 392);
+            this.LabelHelp.Name = "LabelHelp";
+            this.LabelHelp.Size = new System.Drawing.Size(241, 40);
+            this.LabelHelp.TabIndex = 2;
+            this.LabelHelp.Text = "Drag to order, Click to rename";
+            this.LabelHelp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Button
             // 
             this.Button.AutoSize = true;
@@ -87,18 +78,36 @@
             this.Button.UseVisualStyleBackColor = true;
             this.Button.Click += new System.EventHandler(this.Button_Click);
             // 
-            // LabelHelp
+            // ListView
             // 
-            this.LabelHelp.AutoSize = true;
-            this.TableLayoutPanel.SetColumnSpan(this.LabelHelp, 2);
-            this.LabelHelp.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LabelHelp.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.LabelHelp.Location = new System.Drawing.Point(3, 392);
-            this.LabelHelp.Name = "LabelHelp";
-            this.LabelHelp.Size = new System.Drawing.Size(241, 40);
-            this.LabelHelp.TabIndex = 2;
-            this.LabelHelp.Text = "Drag to order, Click to rename";
-            this.LabelHelp.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.ListView.Alignment = System.Windows.Forms.ListViewAlignment.Left;
+            this.ListView.AllowDrop = true;
+            this.ListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.TableLayoutPanel.SetColumnSpan(this.ListView, 3);
+            this.ListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.ListView.HideSelection = false;
+            this.ListView.LabelEdit = true;
+            this.ListView.LabelWrap = false;
+            this.ListView.Location = new System.Drawing.Point(3, 3);
+            this.ListView.MinimumSize = new System.Drawing.Size(300, 300);
+            this.ListView.MultiSelect = false;
+            this.ListView.Name = "ListView";
+            this.ListView.ShowGroups = false;
+            this.ListView.Size = new System.Drawing.Size(366, 386);
+            this.ListView.TabIndex = 0;
+            this.ListView.UseCompatibleStateImageBehavior = false;
+            this.ListView.View = System.Windows.Forms.View.Details;
+            this.ListView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.ListView_ItemDrag);
+            this.ListView.Click += new System.EventHandler(this.ListView_Click);
+            this.ListView.DragEnter += new System.Windows.Forms.DragEventHandler(this.ListView_DragEnter);
+            this.ListView.DragOver += new System.Windows.Forms.DragEventHandler(this.ListView_DragOver);
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "";
+            this.columnHeader1.Width = 341;
             // 
             // SplitsGenerator
             // 
@@ -127,5 +136,6 @@
         private System.Windows.Forms.TableLayoutPanel TableLayoutPanel;
         private System.Windows.Forms.Button Button;
         private System.Windows.Forms.Label LabelHelp;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
     }
 }

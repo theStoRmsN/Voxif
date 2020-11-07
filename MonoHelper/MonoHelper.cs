@@ -12,37 +12,40 @@ namespace LiveSplit.VoxSplitter {
         public class MonoInformation {
             public bool il2cpp;
             public string assembly;
-            public int pointer_size;
-            public int assembly_image;
-            public int image_name;
-            public int image_class_offset;
-            public int image_class_count;
-            public int image_cache_table;
-            public int class_name;
-            public int class_parent;
-            public int class_fields;
-            public int class_fields_count;
-            public int class_basetype;
-            public int class_generic_class;
-            public int class_next_class_cache;
-            public int class_vtable;
-            public int vtable_static_data;
-            public int vtable_static_data_offset;
-            public int field_struct_size;
-            public int field_name;
-            public int field_type;
-            public int field_offset;
-            public int type_attrs;
+            public ushort pointer_size;
+            public ushort assembly_image;
+            public ushort image_name;
+            public ushort image_class_offset;
+            public ushort image_class_count;
+            public ushort image_cache_table;
+            public ushort class_name;
+            public ushort class_parent;
+            public ushort class_fields;
+            public ushort class_fields_count;
+            public ushort class_basetype;
+            public ushort class_generic_class;
+            public ushort class_next_class_cache;
+            public ushort class_vtable;
+            public ushort vtable_static_data;
+            public ushort vtable_static_data_offset;
+            public ushort field_struct_size;
+            public ushort field_name;
+            public ushort field_type;
+            public ushort field_offset;
+            public ushort type_attrs;
         }
 
         // TODO mono v1 32bit
-        private readonly MonoInformation monoV1_64 = new MonoInformation { il2cpp = false, pointer_size = 0x8, assembly = monoV1Assembly, assembly_image = 0x58, image_name = 0x28, image_class_count = 0x18, image_cache_table = 0x20, class_next_class_cache = 0x100, image_class_offset = 0x3D0, class_name = 0x48, class_vtable = 0xF8, vtable_static_data = 0x10, class_fields_count = 0x094, class_fields = 0xA8, field_struct_size = 0x20, field_name = 0x8, field_offset = 0x18, field_type = 0x0, class_parent = 0x30, type_attrs = 0x8 };
-        //private readonly MonoInformation monoV1_64 = new MonoInformation { il2cpp = false, pointer_size = 0x8, assembly = monoV1Assembly, assembly_image = 0x58, image_name = 0x28, image_class_count = 0x18, image_cache_table = 0x20, class_next_class_cache = 0x108, image_class_offset = 0x3D0, class_name = 0x50, class_vtable = 0x100, vtable_static_data = 0x18, class_fields_count = 0x09C, class_fields = 0xB0, field_struct_size = 0x20, field_name = 0x8, field_offset = 0x18, field_type = 0x0, class_parent = 0x30, type_attrs = 0x8 };
+        //private readonly MonoInformation monoV1_64 = new MonoInformation { il2cpp = false, pointer_size = 0x8, assembly = monoV1Assembly, assembly_image = 0x58, image_name = 0x28, image_class_count = 0x18, image_cache_table = 0x20, class_next_class_cache = 0x100, image_class_offset = 0x3D0, class_name = 0x48, class_vtable = 0xF8, vtable_static_data = 0x10, class_fields_count = 0x094, class_fields = 0xA8, field_struct_size = 0x20, field_name = 0x8, field_offset = 0x18, field_type = 0x0, class_parent = 0x30, type_attrs = 0x8 };
+        //2017.4.3f1
+        private readonly MonoInformation monoV1_64 = new MonoInformation { il2cpp = false, pointer_size = 0x8, assembly = monoV1Assembly, assembly_image = 0x58, image_name = 0x28, image_class_count = 0x18, image_cache_table = 0x20, class_next_class_cache = 0x108, image_class_offset = 0x3D0, class_name = 0x50, class_vtable = 0x100, vtable_static_data = 0x18, class_fields_count = 0x09C, class_fields = 0xB0, field_struct_size = 0x20, field_name = 0x8, field_offset = 0x18, field_type = 0x0, class_parent = 0x30, type_attrs = 0x8 };
 
         private readonly MonoInformation monoV2_32 = new MonoInformation { il2cpp = false, pointer_size = 0x4, assembly = monoV2Assembly, assembly_image = 0x44, image_name = 0x18, image_class_count = 0x0C, image_cache_table = 0x14, class_next_class_cache = 0x0A8, image_class_offset = 0x354, class_name = 0x2C, class_vtable = 0x84, vtable_static_data = 0x28, vtable_static_data_offset = 0x38, class_fields_count = 0x0A4, class_fields = 0x60, class_basetype = 0x1E, class_generic_class = 0x94, field_struct_size = 0x10, field_name = 0x4, field_offset = 0x0C, field_type = 0x0, class_parent = 0x20, type_attrs = 0x4 };
+        //2018.4.24f1
         private readonly MonoInformation monoV2_64 = new MonoInformation { il2cpp = false, pointer_size = 0x8, assembly = monoV2Assembly, assembly_image = 0x60, image_name = 0x28, image_class_count = 0x18, image_cache_table = 0x20, class_next_class_cache = 0x108, image_class_offset = 0x4C0, class_name = 0x48, class_vtable = 0xD0, vtable_static_data = 0x40, vtable_static_data_offset = 0x5C, class_fields_count = 0x100, class_fields = 0x98, class_basetype = 0x2A, class_generic_class = 0xF0, field_struct_size = 0x20, field_name = 0x8, field_offset = 0x18, field_type = 0x0, class_parent = 0x30, type_attrs = 0x8 };
 
         // TODO il2cpp 32bit
+        //2018.3.11f1
         private readonly MonoInformation il2cpp_64 = new MonoInformation { il2cpp = true, pointer_size = 0x8, assembly = il2cppAssembly, assembly_image = 0x00, image_name = 0x18, image_class_count = 0x1C, image_class_offset = 0x18, class_name = 0x10, class_fields_count = 0x114, class_fields = 0x80, field_struct_size = 0x20, field_name = 0x0, field_offset = 0x18, field_type = 0x8, class_parent = 0x58, type_attrs = 0x8 };
 
         public MonoInformation MonoInfo { get; protected set; }
@@ -63,8 +66,6 @@ namespace LiveSplit.VoxSplitter {
         public IntPtr mainImage;
         private IntPtr il2cppTypeInfo;
 
-        public int msToWaitAfterStart = 10000;
-
         public bool IsCompleted => task?.IsCompleted ?? true;
 
         public MonoHelper(Memory memory) {
@@ -80,14 +81,6 @@ namespace LiveSplit.VoxSplitter {
             token = tokenSource.Token;
             task = Task.Factory.StartNew(() => {
                 try {
-                    //Wait for mono data as it may not be fully initialized right after launch
-                    //TODO find a clean way to know when datas are fully loaded
-                    int msSinceGameStart = (int)(DateTime.Now - memory.Game.StartTime).TotalMilliseconds;
-                    if(msSinceGameStart < msToWaitAfterStart) {
-                        int msToWait = msToWaitAfterStart - msSinceGameStart;
-                        Log($"Game just launched, wait {msToWait}ms");
-                        Thread.Sleep(msToWait);
-                    }
                     InitMono();
                     action();
                     Log("Task terminated");
@@ -100,78 +93,99 @@ namespace LiveSplit.VoxSplitter {
         }
 
         protected void InitMono() {
-            //Log(memory.game.Is64Bit()+"");
+            while(!token.IsCancellationRequested) {
+                string monoName = memory.Game.Modules().FirstOrDefault(
+                    m => m.ModuleName.Equals(monoV1Assembly)
+                      || m.ModuleName.Equals(monoV2Assembly)
+                      || m.ModuleName.Equals(il2cppAssembly))?.ModuleName;
 
-            string monoName = memory.Game.Modules().FirstOrDefault(
-                m => m.ModuleName.Equals(monoV1Assembly)
-                  || m.ModuleName.Equals(monoV2Assembly)
-                  || m.ModuleName.Equals(il2cppAssembly)).ModuleName;
+                if(monoName == null) {
+                    Sleep();
+                    continue;
+                }
 
-            if(monoName.StartsWith("mono")) {
-                // TODO                                                                        Change v1 32bit
-                MonoInfo = monoName.Equals(monoV1Assembly) ? (memory.Game.Is64Bit() ? monoV1_64 : monoV1_64)
-                                                           : (memory.Game.Is64Bit() ? monoV2_64 : monoV2_32);
-            } else {
-                MonoInfo = memory.Game.Is64Bit() ? il2cpp_64 : il2cpp_64;
-                SigScanTarget signature = new SigScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05 ???????? 48 83 3C 03");
-                ProcessModuleWow64Safe module = memory.Game.Modules().First(m => m.ModuleName == il2cppAssembly);
-                SignatureScanner scanner = new SignatureScanner(memory.Game, module.BaseAddress, module.ModuleMemorySize);
-                il2cppTypeInfo = scanner.Scan(signature);
+                if(monoName.StartsWith("mono")) {
+                    // TODO                                      Add v1 32bit
+                    MonoInfo = monoName.Equals(monoV1Assembly) ? monoV1_64
+                                                               : (memory.Game.Is64Bit() ? monoV2_64 : monoV2_32);
+                } else {
+                    // TODO    Add 32bit
+                    MonoInfo = il2cpp_64;
+                    SigScanTarget signature = new SigScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05 ???????? 48 83 3C 03");
+                    ProcessModuleWow64Safe module = memory.Game.Modules().First(m => m.ModuleName == il2cppAssembly);
+                    SignatureScanner scanner = new SignatureScanner(memory.Game, module.BaseAddress, module.ModuleMemorySize);
+                    il2cppTypeInfo = scanner.Scan(signature);
+                }
+
+                mainImage = GetModuleImage("Assembly-CSharp");
+
+                break;
             }
-
-            mainImage = GetModuleImage("Assembly-CSharp");
         }
 
         public IntPtr GetModuleImage(string moduleName) {
-            IntPtr assemblies;
-            IntPtr relativeAsm = MonoInfo.il2cpp ? memory.Game.GetSymbolAddress(MonoInfo.assembly, "il2cpp_domain_get_assemblies") + 0xA
-                                                 : memory.Game.GetSymbolAddress(MonoInfo.assembly, "mono_assembly_foreach") + 0x25;
-            assemblies = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(relativeAsm));
-            while(true) {
-                IntPtr image = GetImage(assemblies);
-                string assemblyName = GetImageName(image);
-                if(assemblyName.Equals(moduleName)) {
-                    Log("Module " + image.ToString("X") + " " + assemblyName);
-                    return MonoInfo.il2cpp ? memory.Game.Read<IntPtr>(image) : image;
+            Log("Looking for module: " + moduleName);
+            while(!token.IsCancellationRequested) {
+                IntPtr assemblies;
+                IntPtr relativeAsm = MonoInfo.il2cpp ? memory.Game.GetSymbolAddress(MonoInfo.assembly, "il2cpp_domain_get_assemblies") + 0xA
+                                                     : memory.Game.GetSymbolAddress(MonoInfo.assembly, "mono_assembly_foreach") + 0x25;
+                if(relativeAsm == default) {
+                    continue;
                 }
-                if(MonoInfo.il2cpp) {
-                    assemblies += MonoInfo.pointer_size;
-                    if(memory.Game.Read<IntPtr>(assemblies) == default) {
-                        return default;
+                assemblies = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(relativeAsm));
+                while(true) {
+                    IntPtr image = GetImage(assemblies);
+                    string assemblyName = GetImageName(image);
+                    if(assemblyName.Equals(moduleName)) {
+                        Log("Module " + image.ToString("X") + " " + assemblyName);
+                        return MonoInfo.il2cpp ? memory.Game.Read<IntPtr>(image) : image;
                     }
-                } else {
-                    assemblies = memory.Game.Read<IntPtr>(assemblies + MonoInfo.pointer_size);
-                    if(assemblies == default) {
-                        return default;
+                    if(MonoInfo.il2cpp) {
+                        assemblies += MonoInfo.pointer_size;
+                        if(memory.Game.Read<IntPtr>(assemblies) == default) {
+                            Sleep();
+                            break;
+                        }
+                    } else {
+                        assemblies = memory.Game.Read<IntPtr>(assemblies + MonoInfo.pointer_size);
+                        if(assemblies == default) {
+                            Sleep();
+                            break;
+                        }
                     }
                 }
             }
+            return default;
         }
 
         public IntPtr GetClass(IntPtr image, string classToFind) {
-            if(MonoInfo.il2cpp) {
-                int offset = GetClassOffsetCpp(image);
-                int count = GetClassCount(image);
-                IntPtr table = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(il2cppTypeInfo));
-                for(int i = 0; i < count; i++) {
-                    IntPtr klass = GetClass(table, offset + i);
-                    if(ClassFound(klass, classToFind)) {
-                        return klass;
-                    }
-                }
-            } else {
-                IntPtr offset = GetClassOffsetMono(image);
-                int count = GetClassCount(offset);
-                IntPtr table = GetCacheTable(offset);
-                for(int i = 0; i < count; i++) {
-                    IntPtr klass = GetClass(table, i);
-                    while(klass != default) {
+            Log("Looking for class: " + classToFind);
+            while(!token.IsCancellationRequested) {
+                if(MonoInfo.il2cpp) {
+                    int offset = GetClassOffsetCpp(image);
+                    int count = GetClassCount(image);
+                    IntPtr table = memory.Game.Read<IntPtr>(memory.FromRelativeAddress(il2cppTypeInfo));
+                    for(int i = 0; i < count; i++) {
+                        IntPtr klass = GetClass(table, offset + i);
                         if(ClassFound(klass, classToFind)) {
                             return klass;
                         }
-                        klass = GetNextClassCache(klass);
+                    }
+                } else {
+                    IntPtr offset = GetClassOffsetMono(image);
+                    int count = GetClassCount(offset);
+                    IntPtr table = GetCacheTable(offset);
+                    for(int i = 0; i < count; i++) {
+                        IntPtr klass = GetClass(table, i);
+                        while(klass != default) {
+                            if(ClassFound(klass, classToFind)) {
+                                return klass;
+                            }
+                            klass = GetNextClassCache(klass);
+                        }
                     }
                 }
+                Sleep();
             }
             return default;
         }
@@ -195,21 +209,25 @@ namespace LiveSplit.VoxSplitter {
         }
 
         public IntPtr GetStaticField(IntPtr klass, string fieldName, out int staticOffset, bool includeParents = true) {
+            Log("Looking for static field: " + fieldName);
             staticOffset = 0;
-            foreach(IntPtr field in FieldSequence(klass, includeParents)) {
-                if(!FieldIsStatic(field)) {
-                    continue;
-                }
-                if(!String.IsNullOrEmpty(fieldName)) {
-                    string name = GetFieldName(field);
-                    if(!name.Equals(fieldName)) {
+            while(!token.IsCancellationRequested) {
+                foreach(IntPtr field in FieldSequence(klass, includeParents)) {
+                    if(!FieldIsStatic(field)) {
                         continue;
                     }
-                    staticOffset = GetFieldOffset(field);
+                    if(!String.IsNullOrEmpty(fieldName)) {
+                        string name = GetFieldName(field);
+                        if(!name.Equals(fieldName)) {
+                            continue;
+                        }
+                        staticOffset = GetFieldOffset(field);
+                    }
+                    IntPtr staticKlass = MonoInfo.il2cpp ? field : klass; ;
+                    Log("Static " + staticKlass.ToString("X") + " " + staticOffset.ToString("X"));
+                    return staticKlass;
                 }
-                IntPtr staticKlass = MonoInfo.il2cpp ? field : klass; ;
-                Log("Static " + staticKlass.ToString("X") + " " + staticOffset.ToString("X"));
-                return staticKlass;
+                Sleep();
             }
             return default;
         }
@@ -285,6 +303,8 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
+        protected void Sleep(int msTimeout = 50) => Thread.Sleep(msTimeout);
+
         protected void Log(string msg) => memory.Logger.Log("[Mono] " + msg);
 
         protected void ExitMono() {
@@ -305,51 +325,61 @@ namespace LiveSplit.VoxSplitter {
             mono = monoHelper;
         }
 
+
+        public Pointer<T> Make<T>(string klassName, string instanceName, params int[] offsets) where T : unmanaged {
+            return Make<T>(mono.mainImage, klassName, instanceName, out _, offsets);
+        }
         public Pointer<T> Make<T>(string klassName, string instanceName, out IntPtr klass, params int[] offsets) where T : unmanaged {
             return Make<T>(mono.mainImage, klassName, instanceName, out klass, offsets);
         }
+        public Pointer<T> Make<T>(IntPtr image, string klassName, string instanceName, params int[] offsets) where T : unmanaged {
+            return Make<T>(image, klassName, instanceName, out _, offsets);
+        }
         public Pointer<T> Make<T>(IntPtr image, string klassName, string instanceName, out IntPtr klass, params int[] offsets) where T : unmanaged {
-            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out klass, out int instanceOffset);
-            return (Pointer<T>)CreateBase<T>(staticBase, offsets.Prepend(instanceOffset).ToArray());
+            return (Pointer<T>)Make(typeof(T), image, klassName, instanceName, out klass, offsets);
         }
 
         public Pointer<T> Make<T>(string klassName, string instanceName, string fieldName, params int[] offsets) where T : unmanaged {
             return Make<T>(mono.mainImage, klassName, instanceName, fieldName, offsets);
         }
         public Pointer<T> Make<T>(IntPtr image, string klassName, string instanceName, string fieldName, params int[] offsets) where T : unmanaged {
-            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out IntPtr klass, out int instanceOffset);
-            return (Pointer<T>)CreateBase<T>(staticBase, offsets.Prepend(mono.GetFieldOffset(klass, fieldName)).Prepend(instanceOffset).ToArray());
+            return (Pointer<T>)Make(typeof(T), image, klassName, instanceName, fieldName, offsets);
         }
 
-        protected IPointer CreateBase<T>(IntPtr ptr, params int[] offsets) where T : unmanaged {
-            MonoBasePointer monoBase = new MonoBasePointer(memory, mono, ptr);
-            monoBase.ForceUpdate();
-            NodePointer<T> pointer = new NodePointer<T>(memory, monoBase, offsets);
-            pointer.ForceUpdate();
-            nodeLink.Add(monoBase, new HashSet<IPointer> { pointer });
-            return pointer;
-        }
 
+        public StringPointer MakeString(string klassName, string instanceName, params int[] offsets) {
+            return MakeString(mono.mainImage, klassName, instanceName, out _, offsets);
+        }
         public StringPointer MakeString(string klassName, string instanceName, out IntPtr klass, params int[] offsets) {
             return MakeString(mono.mainImage, klassName, instanceName, out klass, offsets);
         }
+        public StringPointer MakeString(IntPtr image, string klassName, string instanceName, params int[] offsets) {
+            return MakeString(image, klassName, instanceName, out _, offsets);
+        }
         public StringPointer MakeString(IntPtr image, string klassName, string instanceName, out IntPtr klass, params int[] offsets) {
-            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out klass, out int instanceOffset);
-            return (StringPointer)CreateStringBase(staticBase, offsets.Prepend(instanceOffset).ToArray());
+            return (StringPointer)Make(typeof(string), image, klassName, instanceName, out klass, offsets);
         }
 
         public StringPointer MakeString(string klassName, string instanceName, string fieldName, params int[] offsets) {
             return MakeString(mono.mainImage, klassName, instanceName, fieldName, offsets);
         }
         public StringPointer MakeString(IntPtr image, string klassName, string instanceName, string fieldName, params int[] offsets) {
-            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out IntPtr klass, out int instanceOffset);
-            return (StringPointer)CreateStringBase(staticBase, offsets.Prepend(mono.GetFieldOffset(klass, fieldName)).Prepend(instanceOffset).ToArray());
+            return (StringPointer)Make(typeof(string), image, klassName, instanceName, fieldName, offsets);
         }
 
-        protected IPointer CreateStringBase(IntPtr ptr, params int[] offsets) {
+
+        public Pointer Make(Type type, IntPtr image, string klassName, string instanceName, out IntPtr klass, params int[] offsets) {
+            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out klass, out int instanceOffset);
+            return CreateBase(type, staticBase, offsets.Prepend(instanceOffset).ToArray());
+        }
+        public Pointer Make(Type type, IntPtr image, string klassName, string instanceName, string fieldName, params int[] offsets) {
+            IntPtr staticBase = mono.GetStaticField(image, klassName, instanceName, out IntPtr klass, out int instanceOffset);
+            return CreateBase(type, staticBase, offsets.Prepend(mono.GetFieldOffset(klass, fieldName)).Prepend(instanceOffset).ToArray());
+        }
+        protected Pointer CreateBase(Type type, IntPtr ptr, params int[] offsets) {
             MonoBasePointer monoBase = new MonoBasePointer(memory, mono, ptr);
             monoBase.ForceUpdate();
-            NodeStringPointer pointer = new NodeStringPointer(memory, monoBase, offsets);
+            Pointer pointer = (Pointer)CreateNodeStructOrString(type, monoBase, derefType, offsets);
             pointer.ForceUpdate();
             nodeLink.Add(monoBase, new HashSet<IPointer> { pointer });
             return pointer;

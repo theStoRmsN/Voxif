@@ -1,4 +1,5 @@
-﻿using LiveSplit.Model;
+﻿using LiveSplit.ComponentUtil;
+using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,8 @@ namespace LiveSplit.VoxSplitter {
         protected string processName;
         protected DateTime hookTime;
 
+        protected LiveSplitState state;
+
         public uint Tick { get; private set; } = 1;
         public void IncreaseTick() => ++Tick;
 
@@ -19,11 +22,17 @@ namespace LiveSplit.VoxSplitter {
 
         public Logger Logger { get; }
 
-        protected Memory(Logger logger) {
+        protected Memory(LiveSplitState state, Logger logger) {
+            this.state = state;
             Logger = logger;
         }
 
         public virtual bool TryGetGameProcess() {
+            if(Game != null) {
+                Game = null;
+                OnExit();
+            }
+
             if(DateTime.Now < hookTime) { return false; }
 
             hookTime = DateTime.Now.AddSeconds(1d);
@@ -34,7 +43,7 @@ namespace LiveSplit.VoxSplitter {
             if(process == null || process.Modules() == null) {
                 return false;
             }
-            Logger.Log("Process Found: PID " + process.Id);
+            Logger.Log($"Process Found. PID: {process.Id}, 64bit: {process.Is64Bit()}");
             Game = process;
             return true;
         }
@@ -44,23 +53,24 @@ namespace LiveSplit.VoxSplitter {
                 return true;
             }
             if(TryGetGameProcess()) {
-                OnGameHook();
+                OnHook();
             } else {
                 return false;
             }
             return true;
         }
 
-        protected virtual void OnGameHook() { }
-        public virtual bool UpdateMemory(TimerModel timer) => true;
+        protected virtual void OnHook() { }
+        public virtual bool Update() => true;
         public virtual bool Start(int start) => false;
         public virtual bool Split() => false;
         public virtual bool Reset(int reset) => false;
         public virtual bool Loading() => false;
         public virtual TimeSpan? GameTime() => null;
-        public virtual void OnStart(TimerModel timer, HashSet<string> splits) { }
-        public virtual void OnSplit(TimerModel timer) { }
-        public virtual void OnReset(TimerModel timer) { }
+        public virtual void OnStart(HashSet<string> splits) { }
+        public virtual void OnSplit() { }
+        public virtual void OnReset() { }
+        public virtual void OnExit() { }
         public virtual void Dispose() { }
 
         public IntPtr FromRelativeAddress(IntPtr asmAddress) => asmAddress + 0x4 + Game.Read<int>(asmAddress);

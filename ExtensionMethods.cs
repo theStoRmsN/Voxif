@@ -121,7 +121,8 @@ namespace LiveSplit.VoxSplitter {
                 SymbolInfo[] symbols = process.EnumerateSymbols(module, symbol);
                 return symbols.Length > 0 ? (IntPtr)symbols[0].address : default;
             } catch(Exception e) {
-                throw e;
+                Options.Log.Error(e.ToString());
+                return default;
             }
         }
 
@@ -161,7 +162,6 @@ namespace LiveSplit.VoxSplitter {
                 return *(T*)p;
             }
         }
-
         public unsafe static T To<T>(this byte[] bytes, int offset) where T : unmanaged {
             fixed(byte* p = bytes) {
                 return *(T*)(p + offset);
@@ -173,12 +173,10 @@ namespace LiveSplit.VoxSplitter {
             byte[] bytes = new byte[size];
             return value.ToBytes(bytes, size);
         }
-
         public unsafe static byte[] ToBytes<T>(this T value, byte[] bytes) where T : unmanaged {
             int size = sizeof(T);
             return value.ToBytes(bytes, size);
         }
-
         public unsafe static byte[] ToBytes<T>(this T value, byte[] bytes, int size) where T : unmanaged {
             fixed(byte* p = bytes) {
                 Buffer.MemoryCopy(&value, p, bytes.Length, size);
@@ -197,27 +195,6 @@ namespace LiveSplit.VoxSplitter {
             Type type = enumVal.GetType();
             object[] attributes = type.GetMember(Enum.GetName(type, enumVal))[0].GetCustomAttributes(typeof(T), false);
             return (attributes.Length > 0) ? (T)attributes[0] : null;
-        }
-
-        //
-        // NAMED PIPE
-        //
-        public static void Write(this NamedPipeClientStream pipe, byte[] bytes, int count) {
-            pipe.Write(bytes, 0, count);
-        }
-
-        public static int Read(this NamedPipeClientStream pipe, byte[] bytes, int count) {
-            return pipe.Read(bytes, 0, count);
-        }
-
-        public unsafe static void Write<T>(this NamedPipeClientStream pipe, T value, byte[] bytes) where T : unmanaged {
-            int size = sizeof(T);
-            pipe.Write(value.ToBytes(bytes, size), 0, size);
-        }
-
-        public unsafe static T Read<T>(this NamedPipeClientStream pipe, byte[] bytes) where T : unmanaged {
-            pipe.Read(bytes, 0, sizeof(T));
-            return bytes.To<T>();
         }
 
         //
@@ -240,5 +217,17 @@ namespace LiveSplit.VoxSplitter {
         public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
         public static string ResourcesPath(this Assembly asm) => Path.Combine(asm.Location, asm.GetName().Name);
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
+
+
+        //
+        // ARRAY
+        //
+        // Linq.Prepend replacement function for .net framework 4.6.1
+        public static T[] Prepend<T>(this T[] array, T value) {
+            T[] newArray = new T[array.Length + 1];
+            newArray[0] = value;
+            Array.Copy(array, 0, newArray, 1, array.Length);
+            return newArray;
+        }
     }
 }

@@ -68,14 +68,13 @@ namespace LiveSplit.VoxSplitter {
             }
 
             memory.IncreaseTick();
-            if(!memory.UpdateMemory(timer)) {
+            if(!memory.Update()) {
                 return;
             }
 
             if(GameTime == EGameTime.Loading) {
                 timer.CurrentState.IsGameTimePaused = memory.Loading();
             } else if(GameTime == EGameTime.GameTime) {
-                timer.CurrentState.IsGameTimePaused = true;
                 timer.CurrentState.SetGameTime(memory.GameTime());
             }
 
@@ -95,9 +94,15 @@ namespace LiveSplit.VoxSplitter {
             }
         }
 
-        protected virtual void OnStart(object sender, EventArgs e) => memory.OnStart(timer, settings.Splits);
-        protected virtual void OnSplit(object sender, EventArgs e) => memory.OnSplit(timer);
-        protected virtual void OnReset(object sender, TimerPhase e) => memory.OnReset(timer);
+        protected virtual void OnStart(object sender, EventArgs e) {
+            timer.CurrentState.SetGameTime(TimeSpan.Zero);
+            if(GameTime == EGameTime.GameTime) {
+                timer.CurrentState.IsGameTimePaused = true;
+            }
+            memory.OnStart(settings.Splits);
+        }
+        protected virtual void OnSplit(object sender, EventArgs e) => memory.OnSplit();
+        protected virtual void OnReset(object sender, TimerPhase e) => memory.OnReset();
 
         public override void Dispose() {
             logger.Log("Dispose");

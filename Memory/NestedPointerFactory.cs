@@ -130,7 +130,7 @@ namespace LiveSplit.VoxSplitter {
             return pointer;
         }
 
-        private IPointer AddPointer(Type type, HashSet<IPointer> pointers, EDerefType derefType, int[] offsets) {
+        protected IPointer AddPointer(Type type, HashSet<IPointer> pointers, EDerefType derefType, int[] offsets) {
             IPointer newNode = null;
             foreach(INodePointer ptr in pointers) {
                 if(ptr.Offsets[0] != offsets[0]) {
@@ -169,21 +169,21 @@ namespace LiveSplit.VoxSplitter {
             }
             return newNode;
         }
-        private IBasePointer CreateBaseStructOrString(Type type, IntPtr basePointer, EDerefType derefType, params int[] offsets) {
+
+        protected IBasePointer CreateBaseStructOrString(Type type, IntPtr basePointer, EDerefType derefType, params int[] offsets) {
             return type == typeof(string)
                  ? new BaseStringPointer(memory, basePointer, derefType, offsets)
                  : (IBasePointer)Activator.CreateInstance(typeof(BasePointer<>).MakeGenericType(type), new object[] { memory, basePointer, derefType, offsets });
         }
 
-        private INodePointer CreateNodeStructOrString(Type type, IPointer basePointer, EDerefType derefType, params int[] offsets) {
+        protected INodePointer CreateNodeStructOrString(Type type, IPointer basePointer, EDerefType derefType, params int[] offsets) {
             return type == typeof(string)
                  ? new NodeStringPointer(memory, basePointer, derefType, offsets)
                  : (INodePointer)Activator.CreateInstance(typeof(NodePointer<>).MakeGenericType(type), new object[] { memory, basePointer, derefType, offsets });
         }
 
-        private string NodeToString(Pointer pointer) {
-            string str = Environment.NewLine;
-            str += new string(' ', 19 + GetTreeDepth(pointer) * 4) + pointer.OffsetsToString();
+        protected string NodeToString(Pointer pointer) {
+            string str = Environment.NewLine + new string(' ', 19 + GetTreeDepth(pointer) * 4) + pointer.OffsetsToString();
 
             if(nodeLink.ContainsKey(pointer)) {
                 foreach(Pointer subNode in nodeLink[pointer]) {
@@ -193,13 +193,13 @@ namespace LiveSplit.VoxSplitter {
             return str;
         }
 
-        public int GetTreeDepth(IPointer pointer) => pointer is INodePointer nodeParent ? 1 + GetTreeDepth(nodeParent.Parent) : 0;
+        public int GetTreeDepth(IPointer pointer) => pointer is INodePointer node ? 1 + GetTreeDepth(node.Parent) : 0;
 
         public override string ToString() {
             string str = "";
             foreach(IBasePointer baseNode in BasePointers()) {
                 str += Environment.NewLine + "0x" + baseNode.Base.ToString("X16");
-                str += " "+((Pointer)baseNode).OffsetsToString();
+                str += " " + ((Pointer)baseNode).OffsetsToString();
                 foreach(Pointer node in nodeLink[baseNode].OrderBy(n => n.Offsets[0])) {
                     str += NodeToString(node);
                 }
@@ -331,7 +331,9 @@ namespace LiveSplit.VoxSplitter {
             Base = basePtr;
         }
 
-        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
+        protected override IntPtr DerefOffsets() {
+            return memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
+        }
     }
 
     public class BaseStringPointer : StringPointer, IBasePointer {
@@ -342,7 +344,9 @@ namespace LiveSplit.VoxSplitter {
             Base = basePtr;
         }
 
-        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
+        protected override IntPtr DerefOffsets() {
+            return memory.Game.DerefOffsets(derefType, Offsets.Length > 0 ? memory.Game.Read<IntPtr>(Base) : Base, Offsets);
+        }
     }
 
     public interface INodePointer : IPointer {
@@ -358,7 +362,9 @@ namespace LiveSplit.VoxSplitter {
             Parent = parent;
         }
 
-        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        protected override IntPtr DerefOffsets() {
+            return memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        }
     }
 
     public enum EStringType { Auto, UTF8, UTF8Sized, UTF16, UTF16Sized }
@@ -372,6 +378,8 @@ namespace LiveSplit.VoxSplitter {
             Parent = parent;
         }
 
-        protected override IntPtr DerefOffsets() => memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        protected override IntPtr DerefOffsets() {
+            return memory.Game.DerefOffsets(derefType, (IntPtr)Parent.New, Offsets);
+        }
     }
 }

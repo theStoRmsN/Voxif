@@ -1,4 +1,5 @@
 ﻿using LiveSplit.ComponentUtil;
+using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace LiveSplit.VoxSplitter {
         protected CancellationToken token;
         protected Task scanTask;
 
-        protected SignatureMemory(Logger logger) : base(logger) {
+        protected SignatureMemory(LiveSplitState state, Logger logger) : base(state, logger) {
             scanData = new ScannableData();
         }
 
