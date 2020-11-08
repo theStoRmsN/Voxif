@@ -8,11 +8,13 @@ using System.Linq;
 namespace LiveSplit.VoxSplitter {
     public abstract class Memory : IDisposable {
 
-        public Process Game { get; protected set; }
-        protected string processName;
-        protected DateTime hookTime;
-
         protected LiveSplitState state;
+
+        public Process Game { get; protected set; }
+        protected DateTime hookTime;
+        
+        protected string[] processNames;
+        protected void SetProcessNames(params string[] names) => processNames = names;
 
         public uint Tick { get; private set; } = 1;
         public void IncreaseTick() => ++Tick;
@@ -37,8 +39,9 @@ namespace LiveSplit.VoxSplitter {
 
             hookTime = DateTime.Now.AddSeconds(1d);
 
-            Process process = Process.GetProcesses().FirstOrDefault((Process p) =>
-                p.ProcessName.StartsWith(processName, StringComparison.OrdinalIgnoreCase) && !p.HasExited);
+            Process process = Process.GetProcesses()
+                .Where(p => processNames.Any(n => p.ProcessName.StartsWith(n, StringComparison.OrdinalIgnoreCase)) && !p.HasExited)
+                .FirstOrDefault();
 
             if(process == null || process.Modules() == null) {
                 return false;

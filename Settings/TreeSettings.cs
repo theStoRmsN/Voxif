@@ -589,6 +589,7 @@ namespace LiveSplit.VoxSplitter {
                 if(splitGen.ShowDialog() != DialogResult.OK) {
                     return;
                 }
+                //Doesn't work with subsplits + show last split
                 state.Run.Clear();
                 foreach(ListViewItem item in splitGen.ListView.Items) {
                     state.Run.AddSegment(item.Text);
