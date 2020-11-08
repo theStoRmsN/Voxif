@@ -33,18 +33,24 @@ namespace LiveSplit.VoxSplitter {
                 if(!File.Exists(logFile)) {
                     File.Create(logFile);
                 } else {
-                    using(StreamReader reader = File.OpenText(logFile)) {
-                        while(reader.ReadLine() != null) {
-                            lineNumber++;
+                    using(FileStream stream = File.Open(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                        using(StreamReader reader = new StreamReader(stream)) {
+                            while(!tokenSource.IsCancellationRequested && reader.ReadLine() != null) {
+                                lineNumber++;
+                            }
                         }
                     }
+                }
+
+                if(tokenSource.IsCancellationRequested) {
+                    return;
                 }
 
                 string line = null;
                 while(true) {
                     manualEvent.WaitOne();
                     if(tokenSource.IsCancellationRequested) {
-                        break;
+                        return;
                     }
                     lock(lockLines) {
                         if(linesQueue.Count != 0) {
