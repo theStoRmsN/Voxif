@@ -126,12 +126,13 @@ namespace LiveSplit.VoxSplitter {
                 GroupBoxImages.Dispose();
             } else {
                 Task.Factory.StartNew(() => DownloadImages(icoNodes, tipNodes));
+                
                 if(icoNodes.Count == 0) {
                     CheckBoxIcons.Dispose();
                     TableLayoutPanelImages.RowStyles.RemoveAt(0);
                 }
 
-                if(icoNodes.Count == 0) {
+                if(tipNodes.Count == 0) {
                     GroupBoxTip.Dispose();
                     TableLayoutPanelImages.RowStyles.RemoveAt(1);
                 }
@@ -139,19 +140,18 @@ namespace LiveSplit.VoxSplitter {
         }
 
         private void DownloadImages(HashSet<string> icoNames, HashSet<string> tipNames) {
-            if(!Directory.Exists(Factory.ExAssembly.ResourcesPath())) {
-                Directory.CreateDirectory(Factory.ExAssembly.ResourcesPath());
-            }
-
             try {
+                if(!Directory.Exists(Factory.ExAssembly.ResourcesPath())) {
+                    Directory.CreateDirectory(Factory.ExAssembly.ResourcesPath());
+                }
+
+                XmlDocument doc = new XmlDocument();
+                doc.Load(Path.Combine(Factory.ExAssembly.ResourcesURL(), "ResourcesUpdate.xml"));
+                Version newerVer = Version.Parse(doc.SelectSingleNode("updates/update").Attributes["version"].InnerText);
+
                 string versionPath = Path.Combine(Factory.ExAssembly.ResourcesPath(), "Version");
                 if(File.Exists(versionPath)) {
                     Version resourcesVer = new Version(File.ReadAllText(versionPath));
-
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(Path.Combine(Factory.ExAssembly.ResourcesURL(), "ResourcesUpdate.xml"));
-
-                    Version newerVer = Version.Parse(doc.SelectSingleNode("updates/update").Attributes["version"].InnerText);
 
                     if(newerVer > resourcesVer) {
                         HashSet<string> changedFiles = new HashSet<string>();
@@ -186,26 +186,24 @@ namespace LiveSplit.VoxSplitter {
                         File.WriteAllText(versionPath, newerVer.ToString(3));
                     }
                 } else {
-                    File.WriteAllText(versionPath, Factory.ExAssembly.GetName().Version.ToString(3));
+                    File.WriteAllText(versionPath, newerVer.ToString(3));
+                }
+
+                foreach(string icoName in icoNames) {
+                    IconList.Images.Add(icoName, new Bitmap(DownloadImage(icoName, "Icons")));
+                }
+
+                foreach(string tipName in tipNames) {
+                    DownloadImage(tipName, "Tooltips");
                 }
             } catch(Exception e) { LiveSplit.Options.Log.Error(e); }
-
-
-            foreach(string icoName in icoNames) {
-                IconList.Images.Add(icoName, new Bitmap(DownloadImage(icoName, "Icons")));
-            }
-
-            foreach(string tipName in tipNames) {
-                DownloadImage(tipName, "Tooltips");
-            }
         }
 
         private string DownloadImage(string name, string directory) {
-            string imgName = name + ".png";
-            string imgPath = Path.Combine(Factory.ExAssembly.ResourcesPath(), directory, imgName);
+            string imgPath = Path.Combine(Factory.ExAssembly.ResourcesPath(), directory, name);
 
             if(!File.Exists(imgPath)) {
-                DownloadFile(Path.Combine(Factory.ExAssembly.ResourcesURL(), directory, imgName), imgPath);
+                DownloadFile(Path.Combine(Factory.ExAssembly.ResourcesURL(), directory, name), imgPath);
             }
 
             return imgPath;
@@ -223,7 +221,7 @@ namespace LiveSplit.VoxSplitter {
         }
 
         protected Bitmap GetTooltipImage(string name) {
-            string path = Path.Combine(Factory.ExAssembly.Location, Factory.ExAssembly.GetName().Name, "Tooltips", name + ".png");
+            string path = Path.Combine(Factory.ExAssembly.ResourcesPath(), "Tooltips", name);
             return File.Exists(path) ? new Bitmap(path) : null;
         }
 
@@ -537,17 +535,22 @@ namespace LiveSplit.VoxSplitter {
         protected void UpdateTooltip(TreeNode n) {
             NewTreeNode node = (NewTreeNode)n;
             if((tooltipSettings.GetName() ?? "") != (node?.Text ?? "")) {
-                if(String.IsNullOrEmpty(node?.ToolTipText)) {
+                if(String.IsNullOrEmpty(node?.ToolTipText) && String.IsNullOrEmpty(node?.ToolTipKey)) {
                     if(tooltipForm.Visible) {
                         tooltipForm.Hide();
                     }
                     tooltipSettings.SetName(node?.Text);
                 } else {
+                    Bitmap img = GetTooltipImage(node.ToolTipKey);
+                    if(img == null && node.ToolTipText == null) {
+                        return;
+                    }
+
                     tooltipSettings.SetName(node.Text);
-                    tooltipSettings.SetText(node.ToolTipText);
+                    tooltipSettings.SetText(node.ToolTipText ?? node.Text);
 
                     if(!String.IsNullOrEmpty(node.ToolTipKey)) {
-                        tooltipSettings.SetImage(GetTooltipImage(node.ToolTipKey), Tips);
+                        tooltipSettings.SetImage(img, Tips);
                     } else {
                         tooltipSettings.SetImage(null);
                     }

@@ -33,10 +33,10 @@
             // PictureBox
             // 
             this.PictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PictureBox.Location = new System.Drawing.Point(0, 49);
+            this.PictureBox.Location = new System.Drawing.Point(0, 50);
             this.PictureBox.Margin = new System.Windows.Forms.Padding(0, 0, 0, 12);
             this.PictureBox.Name = "PictureBox";
-            this.PictureBox.Size = new System.Drawing.Size(27, 1);
+            this.PictureBox.Size = new System.Drawing.Size(100, 1);
             this.PictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.PictureBox.TabIndex = 0;
             this.PictureBox.TabStop = false;
@@ -48,7 +48,7 @@
             this.TableLayoutPanel.BackColor = System.Drawing.SystemColors.Control;
             this.TableLayoutPanel.ColumnCount = 3;
             this.TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+            this.TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.TableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.TableLayoutPanel.Controls.Add(this.LabelText, 0, 0);
             this.TableLayoutPanel.Controls.Add(this.PictureBox, 1, 1);
@@ -56,9 +56,9 @@
             this.TableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.TableLayoutPanel.Name = "TableLayoutPanel";
             this.TableLayoutPanel.RowCount = 2;
-            this.TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 49F));
+            this.TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.TableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
-            this.TableLayoutPanel.Size = new System.Drawing.Size(27, 49);
+            this.TableLayoutPanel.Size = new System.Drawing.Size(100, 50);
             this.TableLayoutPanel.TabIndex = 0;
             // 
             // LabelText
@@ -69,7 +69,7 @@
             this.LabelText.Location = new System.Drawing.Point(4, 0);
             this.LabelText.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelText.Name = "LabelText";
-            this.LabelText.Size = new System.Drawing.Size(19, 49);
+            this.LabelText.Size = new System.Drawing.Size(92, 50);
             this.LabelText.TabIndex = 0;
             this.LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -84,7 +84,7 @@
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "TooltipSettings";
             this.Padding = new System.Windows.Forms.Padding(1);
-            this.Size = new System.Drawing.Size(29, 51);
+            this.Size = new System.Drawing.Size(102, 52);
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
             this.TableLayoutPanel.ResumeLayout(false);
             this.TableLayoutPanel.PerformLayout();

@@ -215,7 +215,7 @@ namespace LiveSplit.VoxSplitter {
         }
         public static string GitMainURL(this Assembly asm) => Path.Combine("https://raw.githubusercontent.com/Voxelse", asm.GetName().Name, "main/");
         public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
-        public static string ResourcesPath(this Assembly asm) => Path.Combine(asm.Location, asm.GetName().Name);
+        public static string ResourcesPath(this Assembly asm) => Path.Combine(Path.GetDirectoryName(asm.Location), asm.GetName().Name);
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
 
 
