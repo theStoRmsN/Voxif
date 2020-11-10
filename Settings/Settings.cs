@@ -1,10 +1,8 @@
-﻿using LiveSplit.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -131,7 +129,7 @@ namespace LiveSplit.VoxSplitter {
             Control control;
             if(values == null || values.Length == 1) {
                 control = new CheckBox {
-                    Text = values != null ? values[0] : parent.Controls[0].Text
+                    Text = values?[0] ?? parent.Controls[0].Text
                 };
                 parent.Controls[0].Dispose();
             } else {
@@ -143,7 +141,6 @@ namespace LiveSplit.VoxSplitter {
                         maxWidth = strWidth;
                     }
                 }
-                control.Width = (int)(maxWidth + AutoScaleDimensions.Width * 3);
                 ((ComboBox)control).Items.AddRange(values);
             }
             control.Margin = new Padding(0, 3, 0, 0);

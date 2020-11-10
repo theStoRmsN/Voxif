@@ -204,16 +204,17 @@ namespace LiveSplit.VoxSplitter {
             // 
             // ComboBoxTip
             // 
+            this.ComboBoxTip.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ComboBoxTip.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ComboBoxTip.FormattingEnabled = true;
             this.ComboBoxTip.Items.AddRange(new object[] {
             "Large",
             "Medium",
             "Small"});
-            this.ComboBoxTip.Location = new System.Drawing.Point(0, 23);
+            this.ComboBoxTip.Location = new System.Drawing.Point(4, 19);
             this.ComboBoxTip.Margin = new System.Windows.Forms.Padding(4);
             this.ComboBoxTip.Name = "ComboBoxTip";
-            this.ComboBoxTip.Size = new System.Drawing.Size(87, 24);
+            this.ComboBoxTip.Size = new System.Drawing.Size(79, 24);
             this.ComboBoxTip.TabIndex = 0;
             this.ComboBoxTip.SelectedIndexChanged += new System.EventHandler(this.ComboBoxTip_SelectedIndexChanged);
             // 
