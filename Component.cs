@@ -72,18 +72,18 @@ namespace LiveSplit.VoxSplitter {
                 return;
             }
 
-            if(GameTime == EGameTime.Loading) {
-                timer.CurrentState.IsGameTimePaused = memory.Loading();
-            } else if(GameTime == EGameTime.GameTime) {
-                timer.CurrentState.SetGameTime(memory.GameTime());
-            }
-
             if(timer.CurrentState.CurrentSplitIndex < 0) {
                 if(settings.Start != 0 && memory.Start(settings.Start)) {
                     timer.Start();
                     logger.Log("Start");
                 }
             } else {
+                if(GameTime == EGameTime.Loading) {
+                    timer.CurrentState.IsGameTimePaused = memory.Loading();
+                } else if(GameTime == EGameTime.GameTime) {
+                    timer.CurrentState.SetGameTime(memory.GameTime());
+                }
+
                 if(settings.Reset != 0 && memory.Reset(settings.Reset)) {
                     timer.Reset();
                     logger.Log("Reset");
@@ -95,9 +95,12 @@ namespace LiveSplit.VoxSplitter {
         }
 
         protected virtual void OnStart(object sender, EventArgs e) {
-            timer.CurrentState.SetGameTime(TimeSpan.Zero);
-            if(GameTime == EGameTime.GameTime) {
+            if(GameTime == EGameTime.Loading) {
+                timer.CurrentState.IsGameTimePaused = memory.Loading();
+                timer.CurrentState.SetGameTime(TimeSpan.Zero);
+            } else if(GameTime == EGameTime.GameTime) {
                 timer.CurrentState.IsGameTimePaused = true;
+                timer.CurrentState.SetGameTime(memory.GameTime());
             }
             memory.OnStart(settings.Splits);
         }

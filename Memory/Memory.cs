@@ -3,7 +3,6 @@ using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace LiveSplit.VoxSplitter {
     public abstract class Memory : IDisposable {
@@ -14,7 +13,7 @@ namespace LiveSplit.VoxSplitter {
         protected DateTime hookTime;
         
         protected string[] processNames;
-        protected void SetProcessNames(params string[] names) => processNames = names;
+        protected void SetProcessNames(string name, params string[] names) => processNames = names.Prepend(name);
 
         public uint Tick { get; private set; } = 1;
         public void IncreaseTick() => ++Tick;
@@ -39,11 +38,8 @@ namespace LiveSplit.VoxSplitter {
 
             hookTime = DateTime.Now.AddSeconds(1d);
 
-            Process process = Process.GetProcesses()
-                .Where(p => processNames.Any(n => p.ProcessName.StartsWith(n, StringComparison.OrdinalIgnoreCase)) && !p.HasExited)
-                .FirstOrDefault();
-
-            if(process == null || process.Modules() == null) {
+            Process process = GetProcessByNames(processNames);
+            if(process?.Modules() == null) {
                 return false;
             }
             Logger.Log($"Process Found. PID: {process.Id}, 64bit: {process.Is64Bit()}");
@@ -57,10 +53,10 @@ namespace LiveSplit.VoxSplitter {
             }
             if(TryGetGameProcess()) {
                 OnHook();
+                return true;
             } else {
                 return false;
             }
-            return true;
         }
 
         protected virtual void OnHook() { }
@@ -74,10 +70,31 @@ namespace LiveSplit.VoxSplitter {
         public virtual void OnSplit() { }
         public virtual void OnReset() { }
         public virtual void OnExit() { }
-        public virtual void Dispose() { }
+        public virtual void Dispose() => Game?.Dispose();
 
         public IntPtr FromRelativeAddress(IntPtr asmAddress) => asmAddress + 0x4 + Game.Read<int>(asmAddress);
         public IntPtr FromAbsoluteAddress(IntPtr asmAddress) => Game.Read<IntPtr>(asmAddress);
+
+        public static Process GetProcessByNames(params string[] processNames) {
+            if(processNames.Length == 0) {
+                return null;
+            }
+
+            Process result = null;
+            Process[] processes = Process.GetProcesses();
+            foreach(Process process in processes) {
+                if(result == null) {
+                    foreach(string processName in processNames) {
+                        if(processName.Equals(process.ProcessName, StringComparison.OrdinalIgnoreCase) && !process.HasExited) {
+                            result = process;
+                        }
+                    }
+                } else {
+                    process.Dispose();
+                }
+            }
+            return result;
+        }
 
         public class RemainingHashSet : HashSet<string> {
             protected Logger logger;
