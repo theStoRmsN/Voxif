@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Xml;
 
 namespace LiveSplit.VoxSplitter {
     public static class ExtensionMethods {
-
         //
         // PROCESS
         //
@@ -152,6 +151,15 @@ namespace LiveSplit.VoxSplitter {
                 symbolList.Add(pSymInfo);
                 return true;
             }
+        }
+
+        //
+        // XML
+        //
+        public static XmlElement ToElement<T>(this XmlDocument document, string name, T value) {
+            XmlElement xmlElement = document.CreateElement(name);
+            xmlElement.InnerText = value.ToString();
+            return xmlElement;
         }
 
         //

@@ -228,14 +228,14 @@ namespace LiveSplit.VoxSplitter {
         public override XmlNode GetSettings(XmlDocument doc) {
             XmlElement xmlElement = (XmlElement)base.GetSettings(doc);
 
-            if(Icons) { xmlElement.AppendChild(ToElement(doc, "Icons", 1)); }
+            if(Icons) { xmlElement.AppendChild(doc.ToElement("Icons", 1)); }
 
-            if(Tips >= 0 && Tips != defTips) { xmlElement.AppendChild(ToElement(doc, "Tips", Tips)); }
+            if(Tips >= 0 && Tips != defTips) { xmlElement.AppendChild(doc.ToElement("Tips", Tips)); }
 
             XmlElement xmlSplits = doc.CreateElement("Splits");
             foreach(KeyValuePair<string, NewTreeNode> setting in settingsDict) {
                 if(setting.Value.Checked) {
-                    xmlSplits.AppendChild(ToElement(doc, "Split", setting.Key));
+                    xmlSplits.AppendChild(doc.ToElement("Split", setting.Key));
                 }
             }
             xmlElement.AppendChild(xmlSplits);

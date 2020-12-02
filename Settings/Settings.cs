@@ -185,11 +185,11 @@ namespace LiveSplit.VoxSplitter {
 
         public virtual XmlNode GetSettings(XmlDocument doc) {
             XmlElement xmlElement = doc.CreateElement("Settings");
-            xmlElement.AppendChild(ToElement(doc, "Start", Start));
-            xmlElement.AppendChild(ToElement(doc, "Reset", Reset));
+            xmlElement.AppendChild(doc.ToElement("Start", Start));
+            xmlElement.AppendChild(doc.ToElement("Reset", Reset));
             XmlElement xmlOptions = doc.CreateElement("Options");
             foreach(string option in Options) {
-                xmlOptions.AppendChild(ToElement(doc, "Option", option));
+                xmlOptions.AppendChild(doc.ToElement("Option", option));
             }
             xmlElement.AppendChild(xmlOptions);
             return xmlElement;
@@ -205,12 +205,6 @@ namespace LiveSplit.VoxSplitter {
                 }
                 Options = optionList.ToArray();
             }
-        }
-
-        protected XmlElement ToElement<T>(XmlDocument document, string name, T value) {
-            XmlElement xmlElement = document.CreateElement(name);
-            xmlElement.InnerText = value.ToString();
-            return xmlElement;
         }
 
         protected virtual void Settings_Load(object sender, EventArgs e) {
