@@ -85,11 +85,6 @@ namespace LiveSplit.VoxSplitter {
             Tips = defTips;
 
             ComboBoxPreset.SelectedIndex = defPreset;
-
-            XmlElement splitterSetting = state.Run?.AutoSplitterSettings;
-            if(splitterSetting != null) {
-                SetSettings(splitterSetting);
-            }
         }
 
         protected void SetupSettings(XmlNodeList nodeList, string parent = null) {
