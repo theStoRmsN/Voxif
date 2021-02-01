@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public partial class ManualTimerSettings : UserControl {
         public float TimerHeight { get; set; }
         public float TimerWidth { get; set; }

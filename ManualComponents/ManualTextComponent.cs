@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public class ManualTextComponent : UI.Components.IComponent {
         protected FontTextComponent InternalComponent { get; set; }
         public ManualTextSettings Settings { get; set; }

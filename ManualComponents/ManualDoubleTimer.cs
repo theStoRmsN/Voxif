@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public class ManualDoubleTimer : UI.Components.IComponent {
         public ManualTimer FirstTimer { get; set; }
         public ManualTimer SecondTimer { get; set; }

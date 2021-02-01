@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright @ 2021</Copyright>
+    <Product>Voxif.Helpers</Product>
+    <Company>Voxif</Company>
+    <Authors>Voxelse</Authors>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="UnityHelper\**" />
+    <Compile Remove="UnrealHelper\**" />
+    <Compile Remove="Voxif.Helpers.MemoryHelper\**" />
+    <Compile Remove="Voxif.Helpers.ScanHelper\**" />
+    <Compile Remove="Voxif.Helpers.StructReflector\**" />
+    <Compile Remove="Voxif.Helpers.UnityHelper\**" />
+    <EmbeddedResource Remove="UnityHelper\**" />
+    <EmbeddedResource Remove="UnrealHelper\**" />
+    <EmbeddedResource Remove="Voxif.Helpers.MemoryHelper\**" />
+    <EmbeddedResource Remove="Voxif.Helpers.ScanHelper\**" />
+    <EmbeddedResource Remove="Voxif.Helpers.StructReflector\**" />
+    <EmbeddedResource Remove="Voxif.Helpers.UnityHelper\**" />
+    <None Remove="UnityHelper\**" />
+    <None Remove="UnrealHelper\**" />
+    <None Remove="Voxif.Helpers.MemoryHelper\**" />
+    <None Remove="Voxif.Helpers.ScanHelper\**" />
+    <None Remove="Voxif.Helpers.StructReflector\**" />
+    <None Remove="Voxif.Helpers.UnityHelper\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ScanHelper.cs" />
+    <Compile Remove="StructReflector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Voxif.IO" Version="1.0.0" />
+  </ItemGroup>
+  
+</Project>

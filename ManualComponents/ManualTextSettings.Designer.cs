@@ -1,4 +1,4 @@
-﻿namespace LiveSplit.VoxSplitter {
+﻿namespace Voxif.AutoSplitter {
     partial class ManualTextSettings {
         /// <summary> 
         /// Required designer variable.

@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public class ManualTimer : UI.Components.IComponent {
         public SimpleLabel BigTextLabel { get; set; }
         public SimpleLabel SmallTextLabel { get; set; }

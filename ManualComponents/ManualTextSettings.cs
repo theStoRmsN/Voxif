@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public partial class ManualTextSettings : UserControl {
         public Color TextColor { get; set; }
         public bool OverrideTextColor { get; set; }

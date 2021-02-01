@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company>Voxif</Company>
+    <Authors>Voxelse</Authors>
+    <Copyright>Copyright @ 2021</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Il2cpp_2019.txt" />
+    <None Remove="Il2cpp_Base.txt" />
+    <None Remove="Mono_v1.txt" />
+    <None Remove="Mono_v1_cattrs.txt" />
+    <None Remove="Mono_v2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Il2cpp_2019.txt" />
+    <EmbeddedResource Include="Il2cpp_Base.txt" />
+    <EmbeddedResource Include="Mono_v1.txt" />
+    <EmbeddedResource Include="Mono_v1_cattrs.txt" />
+    <EmbeddedResource Include="Mono_v2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Voxif.IO" Version="1.0.0" />
+    <PackageReference Include="Voxif.Memory" Version="1.0.0" />
+    <PackageReference Include="Voxif.Helpers" Version="1.0.0" />
+    <PackageReference Include="Voxif.Helpers.MemoryHelper" Version="1.0.1" />
+    <PackageReference Include="Voxif.Helpers.StructReflector" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Il2cpp_2019.txt" />
+    <Resource Include="Il2cpp_Base.txt" />
+    <Resource Include="Mono_v1.txt" />
+    <Resource Include="Mono_v1_cattrs.txt" />
+    <Resource Include="Mono_v2.txt" />
+  </ItemGroup>
+
+</Project>

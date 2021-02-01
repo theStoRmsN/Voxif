@@ -1,6 +1,6 @@
 ﻿using LiveSplit.UI;
 
-namespace LiveSplit.VoxSplitter {
+namespace Voxif.AutoSplitter {
     public class FontTextComponent : UI.Components.InfoTextComponent {
         public ManualTextSettings Settings { get; set; }
 
