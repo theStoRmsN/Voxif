@@ -34,7 +34,9 @@ namespace Voxif.Memory {
             return Make<T>(defaultDerefType, basePtr, offsets);
         }
         public Pointer<T> Make<T>(EDerefType derefType, IntPtr basePtr, params int[] offsets) where T : unmanaged {
-            return (Pointer<T>)Make(typeof(T), derefType, basePtr, offsets);
+            var pointer = (Pointer<T>)Make(typeof(T), derefType, basePtr, offsets);
+            _ = pointer.New;
+            return pointer;
         }
 
         public StringPointer MakeString(int moduleOffset, params int[] offsets) {
@@ -44,21 +46,27 @@ namespace Voxif.Memory {
             return MakeString(defaultDerefType, basePtr, offsets);
         }
         public StringPointer MakeString(EDerefType derefType, IntPtr basePtr, params int[] offsets) {
-            return (StringPointer)Make(typeof(string), derefType, basePtr, offsets);
+            var pointer = (StringPointer)Make(typeof(string), derefType, basePtr, offsets);
+            _ = pointer.New;
+            return pointer;
         }
 
         public Pointer<T> Make<T>(Pointer parent, params int[] offsets) where T : unmanaged {
             return Make<T>(defaultDerefType, parent, offsets);
         }
         public Pointer<T> Make<T>(EDerefType derefType, Pointer parent, params int[] offsets) where T : unmanaged {
-            return (Pointer<T>)Make(typeof(T), derefType, parent, offsets);
+            var pointer = (Pointer<T>)Make(typeof(T), derefType, parent, offsets);
+            _ = pointer.New;
+            return pointer;
         }
 
         public StringPointer MakeString(Pointer parent, params int[] offsets) {
             return MakeString(defaultDerefType, parent, offsets);
         }
         public StringPointer MakeString(EDerefType derefType, Pointer parent, params int[] offsets) {
-            return (StringPointer)Make(typeof(string), derefType, parent, offsets);
+            var pointer = (StringPointer)Make(typeof(string), derefType, parent, offsets);
+            _ = pointer.New;
+            return pointer;
         }
 
         protected IPointer Make(Type type, EDerefType derefType, IntPtr basePtr, params int[] offsets) {
@@ -243,7 +251,6 @@ namespace Voxif.Memory {
             this.wrapper = wrapper;
             this.derefType = derefType;
             Offsets = offsets;
-            _ = New;
         }
 
         protected abstract IntPtr DerefOffsets();
