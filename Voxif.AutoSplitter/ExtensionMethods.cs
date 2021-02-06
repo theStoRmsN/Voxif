@@ -52,17 +52,5 @@ namespace Voxif.AutoSplitter {
         public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
         public static string ResourcesPath(this Assembly asm) => Path.Combine(Path.GetDirectoryName(asm.Location), asm.GetName().Name);
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
-
-
-        //
-        // ARRAY
-        //
-        // Linq.Prepend replacement function for .net framework 4.6.1
-        public static T[] Prepend<T>(this T[] array, T value) {
-            T[] newArray = new T[array.Length + 1];
-            newArray[0] = value;
-            Array.Copy(array, 0, newArray, 1, array.Length);
-            return newArray;
-        }
     }
 }

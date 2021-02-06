@@ -2,7 +2,6 @@
 using LiveSplit.UI.Components;
 using System;
 using System.Reflection;
-using Voxif.AutoSplitter;
 
 namespace Voxif.AutoSplitter {
     public class Factory : IComponentFactory {

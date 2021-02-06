@@ -22,17 +22,17 @@ namespace Voxif.Helpers.MemoryHelper {
 
         protected override void Log(string msg) => logger?.Log("[Scan] " + msg);
 
-        public void Run(ScannableData scanDict, Action<Dictionary<string, Dictionary<string, IntPtr>>> action = null) {
+        public void Run(ScannableData scanDict, Action<ScannableResult> action = null) {
             Run(() => {
                 var result = ScanMemory(scanDict);
                 action?.Invoke(result);
             });
         }
 
-        protected virtual Dictionary<string, Dictionary<string, IntPtr>> ScanMemory(ScannableData scanDict) {
+        protected virtual ScannableResult ScanMemory(ScannableData scanDict) {
             Log("Scanning memory");
 
-            var scansResult = new Dictionary<string, Dictionary<string, IntPtr>>();
+            var scansResult = new ScannableResult();
             foreach(var moduleScan in scanDict) {
                 scansResult.Add(moduleScan.Key, new Dictionary<string, IntPtr>());
                 foreach(var holderScan in moduleScan.Value) {
@@ -52,8 +52,6 @@ namespace Voxif.Helpers.MemoryHelper {
             }
 
             while(true) {
-                logger.StartAverageBenchmark("s");
-
                 token.ThrowIfCancellationRequested();
 
                 foreach(var moduleScan in scanDict) {
@@ -82,8 +80,6 @@ namespace Voxif.Helpers.MemoryHelper {
 
                 token.ThrowIfCancellationRequested();
 
-                logger.StopAverageBenchmark("s", "Scan: ");
-
                 if(!AllSigsFound()) {
                     Sleep(msBetweenSeep);
                     continue;
@@ -105,8 +101,7 @@ namespace Voxif.Helpers.MemoryHelper {
 
                     IntPtr result = scanner.Scan(kvpHolders.Value);
                     if(result != default) {
-                        Log(kvpHolders.Key + " Found at " + result.ToString("X"));
-                        //scansResult[moduleTargets.Key][kvpHolders.Key] = result;
+                        scansResult[moduleTargets.Key][kvpHolders.Key] = result;
                     }
                 }
             }
@@ -114,6 +109,8 @@ namespace Voxif.Helpers.MemoryHelper {
     }
 
     public class ScannableData : Dictionary<string, Dictionary<string, ScanTarget>> { }
+
+    public class ScannableResult : Dictionary<string, Dictionary<string, IntPtr>> { }
 
     public class ScanTarget {
         public struct Signature {

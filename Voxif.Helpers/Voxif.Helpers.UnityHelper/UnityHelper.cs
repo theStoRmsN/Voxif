@@ -170,7 +170,7 @@ namespace Voxif.Helpers.Unity {
 
             protected CancellationToken token;
 
-            protected readonly ProcessWrapper game;
+            protected readonly ProcessWrapper wrapper;
 
             protected readonly Logger logger;
 
@@ -180,7 +180,7 @@ namespace Voxif.Helpers.Unity {
             public IntPtr MainImage { get; }
 
             protected UnityHelperBase(ProcessWrapper game, CancellationToken token, string fileName, string fileVersion, Logger logger = null) {
-                this.game = game;
+                this.wrapper = game;
                 this.token = token;
                 this.logger = logger;
                 Log($"Version: {fileName}.{fileVersion}");
@@ -189,7 +189,7 @@ namespace Voxif.Helpers.Unity {
             }
 
             protected virtual IntPtr AssemblyImage(IntPtr assembly) {
-                return game.Read<IntPtr>(assembly + data.GetOffset("MonoAssembly", "image"));
+                return wrapper.Read<IntPtr>(assembly + data.GetOffset("MonoAssembly", "image"));
             }
 
             protected abstract IEnumerable<IntPtr> ImageSequence();
@@ -197,13 +197,13 @@ namespace Voxif.Helpers.Unity {
                 return GetName(image + data.GetOffset("MonoImage", "assembly_name"));
             }
             protected virtual IntPtr ImageClass(IntPtr table, int offset) {
-                return game.Read<IntPtr>(table + offset * game.PointerSize);
+                return wrapper.Read<IntPtr>(table + offset * wrapper.PointerSize);
             }
             public abstract IntPtr FindImage(string imageToFind);
 
 
             protected virtual IntPtr ClassParent(IntPtr klass) {
-                return game.Read<IntPtr>(klass + data.GetOffset("MonoClass", "parent"));
+                return wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClass", "parent"));
             }
             protected virtual string ClassName(IntPtr klass) {
                 return GetName(klass + data.GetOffset("MonoClass", "name"));
@@ -212,10 +212,10 @@ namespace Voxif.Helpers.Unity {
                 return GetName(klass + data.GetOffset("MonoClass", "name_space"));
             }
             protected virtual bool ClassHasFields(IntPtr klass, out IntPtr fields) {
-                return (fields = game.Read<IntPtr>(klass + data.GetOffset("MonoClass", "fields"))) != default;
+                return (fields = wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClass", "fields"))) != default;
             }
             protected virtual int ClassFieldCount(IntPtr klass) {
-                return game.Read<int>(klass + data.GetOffset("MonoClass", "field_count"));
+                return wrapper.Read<int>(klass + data.GetOffset("MonoClass", "field_count"));
             }
             protected abstract IEnumerable<IntPtr> ClassSequence(IntPtr image);
             public virtual IntPtr FindClass(IntPtr image, string classToFind) {
@@ -243,14 +243,14 @@ namespace Voxif.Helpers.Unity {
                 return GetName(field + data.GetOffset("MonoClassField", "name"));
             }
             protected virtual IntPtr FieldParent(IntPtr field) {
-                return game.Read<IntPtr>(field + data.GetOffset("MonoClassField", "parent"));
+                return wrapper.Read<IntPtr>(field + data.GetOffset("MonoClassField", "parent"));
             }
             protected virtual int FieldOffset(IntPtr field) {
-                return game.Read<int>(field + data.GetOffset("MonoClassField", "offset"));
+                return wrapper.Read<int>(field + data.GetOffset("MonoClassField", "offset"));
             }
             protected virtual bool FieldIsStatic(IntPtr field) {
-                IntPtr type = game.Read<IntPtr>(field + data.GetOffset("MonoClassField", "type"));
-                return (game.Read<ushort>(type + data.GetOffset("MonoType", "attrs")) & FIELD_ATTRIBUTE_STATIC) != 0;
+                IntPtr type = wrapper.Read<IntPtr>(field + data.GetOffset("MonoClassField", "type"));
+                return (wrapper.Read<ushort>(type + data.GetOffset("MonoType", "attrs")) & FIELD_ATTRIBUTE_STATIC) != 0;
             }
             protected virtual IEnumerable<IntPtr> FieldSequence(IntPtr klass, bool includeParents) {
                 int classFieldSize = data.GetSelfAlignedSize("MonoClassField");
@@ -267,6 +267,20 @@ namespace Voxif.Helpers.Unity {
                     }
                 }
             }
+            public virtual int GetFieldOffset(string className, string fieldName, bool includeParents = true) {
+                return GetFieldOffset(MainImage, className, fieldName, out _, includeParents);
+            }
+            public virtual int GetFieldOffset(IntPtr image, string className, string fieldName, bool includeParents = true) {
+                IntPtr klass = FindClass(image, className);
+                return GetFieldOffset(klass, fieldName, includeParents);
+            }
+            public virtual int GetFieldOffset(string className, string fieldName, out IntPtr klass, bool includeParents = true) {
+                return GetFieldOffset(MainImage, className, fieldName, out klass, includeParents);
+            }
+            public virtual int GetFieldOffset(IntPtr image, string className, string fieldName, out IntPtr klass, bool includeParents = true) {
+                klass = FindClass(image, className);
+                return GetFieldOffset(klass, fieldName, includeParents);
+            }
             public virtual int GetFieldOffset(IntPtr klass, string fieldName, bool includeParents = true) {
                 Log("Looking for field: " + fieldName);
                 while(true) {
@@ -282,8 +296,8 @@ namespace Voxif.Helpers.Unity {
                     Sleep();
                 }
             }
-            public virtual IntPtr GetStaticField(IntPtr image, string klassName, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true) {
-                klass = FindClass(image, klassName);
+            public virtual IntPtr GetStaticField(IntPtr image, string className, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true) {
+                klass = FindClass(image, className);
                 return GetStaticField(klass, fieldName, out staticOffset, includeParents);
             }
             public virtual IntPtr GetStaticField(IntPtr klass, string fieldName, out int staticOffset, bool includeParents = true) {
@@ -295,9 +309,9 @@ namespace Voxif.Helpers.Unity {
                             continue;
                         }
                         staticOffset = FieldOffset(field);
-                        IntPtr staticKlass = FieldParent(field);
-                        Log("  -> " + staticKlass.ToString("X") + " " + staticOffset.ToString("X"));
-                        return staticKlass;
+                        IntPtr staticClass = FieldParent(field);
+                        Log("  -> " + staticClass.ToString("X") + " " + staticOffset.ToString("X"));
+                        return staticClass;
                     }
                     Sleep();
                 }
@@ -308,7 +322,7 @@ namespace Voxif.Helpers.Unity {
 
 
             protected string GetName(IntPtr ptr) {
-                return game.ReadString(game.Read<IntPtr>(ptr), EStringType.UTF8);
+                return wrapper.ReadString(wrapper.Read<IntPtr>(ptr), EStringType.UTF8);
             }
 
             public void Log(string msg) => logger?.Log("[Unity] " + msg);
@@ -328,11 +342,11 @@ namespace Voxif.Helpers.Unity {
                     while(true) {
                         token.ThrowIfCancellationRequested();
                         foreach(IntPtr klass in ClassSequence(MainImage)) {
-                            IntPtr klassImage = klass + data.GetOffset("MonoClass", "image");
-                            if(game.Read<IntPtr>(klassImage) == MainImage) {
+                            IntPtr classImage = klass + data.GetOffset("MonoClass", "image");
+                            if(game.Read<IntPtr>(classImage) == MainImage) {
                                 Log("  -> No offset");
                                 return;
-                            } else if(game.Read<IntPtr>(klassImage + game.PointerSize) == MainImage) {
+                            } else if(game.Read<IntPtr>(classImage + game.PointerSize) == MainImage) {
                                 Log("  -> Load cattrs");
                                 data = StructReflector.StructReflector.Load("Voxif.Helpers.UnityHelper.Mono_v1_cattrs", game.PointerSize);
                                 return;
@@ -345,10 +359,10 @@ namespace Voxif.Helpers.Unity {
 
 
             protected virtual IntPtr GListData(IntPtr glist) {
-                return game.Read<IntPtr>(glist + data.GetOffset("GList", "data"));
+                return wrapper.Read<IntPtr>(glist + data.GetOffset("GList", "data"));
             }
             protected virtual IntPtr GListNext(IntPtr glist) {
-                return game.Read<IntPtr>(glist + data.GetOffset("GList", "next"));
+                return wrapper.Read<IntPtr>(glist + data.GetOffset("GList", "next"));
             }
 
 
@@ -366,15 +380,15 @@ namespace Voxif.Helpers.Unity {
                 }
             }
             protected override IEnumerable<IntPtr> ImageSequence() {
-                IntPtr assembliesFunc = game.Process.SymbolAddress(AssemblyName, "mono_assembly_foreach");
+                IntPtr assembliesFunc = wrapper.Process.SymbolAddress(AssemblyName, "mono_assembly_foreach");
                 if(assembliesFunc == default) {
                     Sleep();
                     yield break;
                 }
-                ScanTarget signature = game.Is64Bit ? new ScanTarget(3, "48 8B 0D")
+                ScanTarget signature = wrapper.Is64Bit ? new ScanTarget(3, "48 8B 0D")
                                                     : new ScanTarget(2, "FF 35");
-                assembliesFunc = new SignatureScanner(game.Process, assembliesFunc, 0x100).Scan(signature);
-                IntPtr assemblies = game.Read<IntPtr>(game.FromAssemblyAddress(assembliesFunc));
+                assembliesFunc = new SignatureScanner(wrapper.Process, assembliesFunc, 0x100).Scan(signature);
+                IntPtr assemblies = wrapper.Read<IntPtr>(wrapper.FromAssemblyAddress(assembliesFunc));
                 while(assemblies != default) {
                     yield return AssemblyImage(GListData(assemblies));
                     assemblies = GListNext(assemblies);
@@ -383,16 +397,16 @@ namespace Voxif.Helpers.Unity {
 
 
             protected virtual IntPtr ClassVTable(IntPtr klass) {
-                IntPtr runtimeInfo = game.Read<IntPtr>(klass + data.GetOffset("MonoClass", "runtime_info"));
-                return game.Read<IntPtr>(runtimeInfo + data.GetOffset("MonoClassRuntimeInfo", "domain_vtables"));
+                IntPtr runtimeInfo = wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClass", "runtime_info"));
+                return wrapper.Read<IntPtr>(runtimeInfo + data.GetOffset("MonoClassRuntimeInfo", "domain_vtables"));
             }
             protected virtual IntPtr ClassNextClassCache(IntPtr klass) {
-                return game.Read<IntPtr>(klass + data.GetOffset("MonoClass", "next_class_cache"));
+                return wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClass", "next_class_cache"));
             }
             protected override IEnumerable<IntPtr> ClassSequence(IntPtr image) {
                 IntPtr cache = image + data.GetOffset("MonoImage", "class_cache");
-                int size = game.Read<int>(cache + data.GetOffset("MonoInternalHashTable", "size"));
-                IntPtr table = game.Read<IntPtr>(cache + data.GetOffset("MonoInternalHashTable", "table"));
+                int size = wrapper.Read<int>(cache + data.GetOffset("MonoInternalHashTable", "size"));
+                IntPtr table = wrapper.Read<IntPtr>(cache + data.GetOffset("MonoInternalHashTable", "table"));
                 for(int i = 0; i < size; i++) {
                     IntPtr klass = ImageClass(table, i);
                     while(klass != default) {
@@ -404,7 +418,7 @@ namespace Voxif.Helpers.Unity {
 
             public override IntPtr GetStaticAddress(IntPtr klass) {
                 int vtableOffset = data.GetOffset("MonoVTable", "data");
-                return game.Read<IntPtr>(ClassVTable(klass) + vtableOffset);
+                return wrapper.Read<IntPtr>(ClassVTable(klass) + vtableOffset);
             }
         }
 
@@ -424,14 +438,14 @@ namespace Voxif.Helpers.Unity {
                 : base(game, token, fileVersion, logger) { }
 
             protected virtual IntPtr ClassGenericClass(IntPtr klass) {
-                IntPtr genericInst = game.Read<IntPtr>(klass + data.GetOffset("MonoClassGenericInst", "generic_class"));
-                return game.Read<IntPtr>(genericInst + data.GetOffset("MonoGenericClass", "container_class"));
+                IntPtr genericInst = wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClassGenericInst", "generic_class"));
+                return wrapper.Read<IntPtr>(genericInst + data.GetOffset("MonoGenericClass", "container_class"));
             }
             protected override int ClassFieldCount(IntPtr klass) {
-                switch((MonoTypeKind)(game.Read<byte>(klass + data.GetOffset("MonoClass", "class_kind")) & 0b111)) {
+                switch((MonoTypeKind)(wrapper.Read<byte>(klass + data.GetOffset("MonoClass", "class_kind")) & 0b111)) {
                     case MonoTypeKind.MONO_CLASS_DEF:
                     case MonoTypeKind.MONO_CLASS_GTD:
-                        return game.Read<int>(klass + data.GetOffset("MonoClassDef", "field_count"));
+                        return wrapper.Read<int>(klass + data.GetOffset("MonoClassDef", "field_count"));
                     case MonoTypeKind.MONO_CLASS_GINST:
                         return ClassFieldCount(ClassGenericClass(klass));
                     default:
@@ -439,14 +453,14 @@ namespace Voxif.Helpers.Unity {
                 }
             }
             protected override IntPtr ClassNextClassCache(IntPtr klass) {
-                return game.Read<IntPtr>(klass + data.GetOffset("MonoClassDef", "next_class_cache"));
+                return wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClassDef", "next_class_cache"));
             }
 
 
             public override IntPtr GetStaticAddress(IntPtr klass) {
                 int vtableOffset = data.GetOffset("MonoVTable", "vtable");
-                int vtableSize = game.Read<int>(klass + data.GetOffset("MonoClass", "vtable_size"));
-                return game.Read<IntPtr>(ClassVTable(klass) + vtableOffset + vtableSize * game.PointerSize);
+                int vtableSize = wrapper.Read<int>(klass + data.GetOffset("MonoClass", "vtable_size"));
+                return wrapper.Read<IntPtr>(ClassVTable(klass) + vtableOffset + vtableSize * wrapper.PointerSize);
             }
         }
 
@@ -473,83 +487,92 @@ namespace Voxif.Helpers.Unity {
                 }
             }
             protected override IEnumerable<IntPtr> ImageSequence() {
-                IntPtr assembliesFunc = game.Process.SymbolAddress(AssemblyName, "il2cpp_domain_get_assemblies");
+                IntPtr assembliesFunc = wrapper.Process.SymbolAddress(AssemblyName, "il2cpp_domain_get_assemblies");
                 if(assembliesFunc == default) {
                     yield break;
                 }
 
                 IntPtr assemblies;
-                if(game.Is64Bit) {
-                    if(game.Read<byte>(assembliesFunc) == 0x40) {
+                if(wrapper.Is64Bit) {
+                    if(wrapper.Read<byte>(assembliesFunc) == 0x40) {
                         isMasterCompiler = false;
-                        assemblies = game.FromRelativeAddress(game.FromRelativeAddress(assembliesFunc + 0xA) + 3);
+                        assemblies = wrapper.FromRelativeAddress(wrapper.FromRelativeAddress(assembliesFunc + 0xA) + 3);
                     } else {
                         isMasterCompiler = true;
-                        assemblies = game.FromRelativeAddress(assembliesFunc + 0xA);
+                        assemblies = wrapper.FromRelativeAddress(assembliesFunc + 0xA);
                     }
                 } else {
-                    if(game.Read<byte>(assembliesFunc + 0x3) == 0xE8) {
+                    if(wrapper.Read<byte>(assembliesFunc + 0x3) == 0xE8) {
                         isMasterCompiler = false;
-                        assemblies = game.FromAbsoluteAddress(game.FromRelativeAddress(assembliesFunc + 0x4) + 1);
+                        assemblies = wrapper.FromAbsoluteAddress(wrapper.FromRelativeAddress(assembliesFunc + 0x4) + 1);
                     } else {
                         isMasterCompiler = true;
-                        assemblies = game.FromAbsoluteAddress(assembliesFunc + 0xE);
+                        assemblies = wrapper.FromAbsoluteAddress(assembliesFunc + 0xE);
                     }
                 }
-                assemblies = game.Read<IntPtr>(assemblies);
+                assemblies = wrapper.Read<IntPtr>(assemblies);
 
                 IntPtr image;
-                while((image = AssemblyImage(game.Read<IntPtr>(assemblies))) != default) {
+                while((image = AssemblyImage(wrapper.Read<IntPtr>(assemblies))) != default) {
                     yield return image;
-                    assemblies += game.PointerSize;
+                    assemblies += wrapper.PointerSize;
                 }
             }
 
 
             protected override int ClassFieldCount(IntPtr klass) {
-                return game.Read<short>(klass + data.GetOffset("MonoClass", "field_count"));
+                return wrapper.Read<short>(klass + data.GetOffset("MonoClass", "field_count"));
             }
             protected override IEnumerable<IntPtr> ClassSequence(IntPtr image) {
                 // Might also straight search for MetadataCache::GetTypeInfoFromTypeDefinitionIndex
-                IntPtr classesFunc = game.Process.SymbolAddress(AssemblyName, "il2cpp_image_get_class");
-                IntPtr jmpAddress = new SignatureScanner(game.Process, classesFunc, 0x100).Scan(new ScanTarget(0x1, "E9 ???????? CC"));
-                IntPtr typeDefinitionFunc = game.FromRelativeAddress(jmpAddress);
+                IntPtr classesFunc = wrapper.Process.SymbolAddress(AssemblyName, "il2cpp_image_get_class");
+                IntPtr jmpAddress = new SignatureScanner(wrapper.Process, classesFunc, 0x100).Scan(new ScanTarget(0x1, "E9 ???????? CC"));
+                IntPtr typeDefinitionFunc = wrapper.FromRelativeAddress(jmpAddress);
 
                 if(!isMasterCompiler) {
-                    typeDefinitionFunc = game.FromRelativeAddress(typeDefinitionFunc + (game.Is64Bit ? 0x6 : 0xE));
+                    typeDefinitionFunc = wrapper.FromRelativeAddress(typeDefinitionFunc + (wrapper.Is64Bit ? 0x6 : 0xE));
                 }
                 
                 IntPtr table;
-                SignatureScanner typeDefScanner = new SignatureScanner(game.Process, typeDefinitionFunc, 0x100);
-                if(game.Is64Bit) {
+                SignatureScanner typeDefScanner = new SignatureScanner(wrapper.Process, typeDefinitionFunc, 0x100);
+                if(wrapper.Is64Bit) {
                     ScanTarget scanTarget64 = new ScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05");
-                    table = game.FromRelativeAddress(typeDefScanner.Scan(scanTarget64));
+                    table = wrapper.FromRelativeAddress(typeDefScanner.Scan(scanTarget64));
                 } else {
                     ScanTarget scanTarget32 = new ScanTarget(0x5, "8B E5 5D C3 A1 ???????? 83 3C B0");
-                    table = game.FromAbsoluteAddress(typeDefScanner.Scan(scanTarget32));
+                    table = wrapper.FromAbsoluteAddress(typeDefScanner.Scan(scanTarget32));
                 }
-                table = game.Read<IntPtr>(table);
+                table = wrapper.Read<IntPtr>(table);
 
-                int offset = game.Read<int>(image + data.GetOffset("MonoImage", "table_offset"));
-                int size = game.Read<int>(image + data.GetOffset("MonoImage", "class_count"));
+                int offset = wrapper.Read<int>(image + data.GetOffset("MonoImage", "table_offset"));
+                int size = wrapper.Read<int>(image + data.GetOffset("MonoImage", "class_count"));
                 for(int i = 0; i < size; i++) {
                     yield return ImageClass(table, offset + i);
                 }
             }
 
             public override IntPtr GetStaticAddress(IntPtr klass) {
-                return game.Read<IntPtr>(klass + data.GetOffset("MonoClass", "data"));
+                return wrapper.Read<IntPtr>(klass + data.GetOffset("MonoClass", "data"));
             }
         }
     }
 
     public interface IMonoHelper {
         IntPtr MainImage { get; }
+        
         IntPtr FindImage(string imageToFind);
+        
         IntPtr FindClass(IntPtr image, string classToFind);
-        IntPtr GetStaticField(IntPtr image, string klassName, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true);
+
+        IntPtr GetStaticField(IntPtr image, string className, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true);
         IntPtr GetStaticField(IntPtr klass, string fieldName, out int staticOffset, bool includeParents = true);
+        
+        int GetFieldOffset(IntPtr image, string className, string fieldName, out IntPtr klass, bool includeParents = true);
+        int GetFieldOffset(IntPtr image, string className, string fieldName, bool includeParents = true);
+        int GetFieldOffset(string className, string fieldName, out IntPtr klass, bool includeParents = true);
+        int GetFieldOffset(string className, string fieldName, bool includeParents = true);
         int GetFieldOffset(IntPtr klass, string fieldName, bool includeParents = true);
+        
         IntPtr GetStaticAddress(IntPtr klass);
     }
 }

@@ -82,7 +82,8 @@ namespace Voxif.Helpers.StructReflector {
             return refListDest;
         }
 
-        public static IStructReflector Load(string resourcePath, int pointerSize) {
+        public static IStructReflector Load(string resourcePath, int pointerSize, Dictionary<string, TypeMemoryRule> alignmentRules = null) {
+
             ReflectedList reflectedList = Prepare(resourcePath);
 
             StructureDict structDict = new StructureDict();
@@ -108,7 +109,99 @@ namespace Voxif.Helpers.StructReflector {
                 remainingBitFields = -1;
 
                 foreach(string varLine in data.fields) {
-                    VarData varData = HandleVariable(varLine, pointerSize, structDict, ref remainingBitFields, ref lastOffset);
+                    int varId = varLine.IndexOf(' ');
+                    string type = RemoveGeneric(varLine.Substring(0, varId));
+                    string name = varLine.Substring(varId + 1);
+
+                    bool isPointer = false;
+                    int arrayDim = -1;
+                    int bitField = -1;
+                    string typeName;
+
+                    int pointerId = type.IndexOf('*');
+                    if(pointerId != -1) {
+                        isPointer = true;
+                    }
+
+                    int arrayId = type.IndexOf('[');
+                    if(arrayId != -1) {
+                        int endId = type.IndexOf(']', arrayId);
+                        int startId = arrayId + 1;
+                        arrayDim = Int32.TryParse(type.Substring(startId, endId - startId), out int resNb) ? resNb : 1;
+                    }
+
+                    int bitId = type.IndexOf(':');
+                    if(bitId != -1) {
+                        bitField = Int32.Parse(type.Substring(bitId + 1));
+                    }
+
+                    if(pointerId != -1 || arrayId != -1 || bitId != -1) {
+                        typeName = type.Substring(0, GetLowestId(pointerId, arrayId, bitId));
+
+                        int GetLowestId(params int[] ids) {
+                            int lowest = Int32.MaxValue;
+                            foreach(int id in ids) {
+                                if(id != -1 && id < lowest) {
+                                    lowest = id;
+                                }
+                            }
+                            return lowest;
+                        }
+                    } else {
+                        typeName = type;
+                    }
+
+                    VarData varData;
+                    if(bitField != -1) {
+                        int alignSize = 0;
+                        if(remainingBitFields < 0) {
+                            IsBuiltinTypeSize(alignmentRules, typeName, out int typeSize, out alignSize);
+                            remainingBitFields = typeSize * 8;
+                            lastOffset = AlignByte(lastOffset, alignSize);
+                        }
+
+                        varData = new VarData(name, lastOffset, BitsToBytes(bitField), alignSize);
+
+                        int oldByte = BitsToBytes(remainingBitFields);
+                        remainingBitFields -= bitField;
+                        int curByte = BitsToBytes(remainingBitFields);
+                        if(oldByte > curByte) {
+                            lastOffset += oldByte - curByte;
+                        }
+                    } else {
+                        if(remainingBitFields > 0) {
+                            lastOffset += BitsToBytes(remainingBitFields);
+                            remainingBitFields = -1;
+                        }
+
+                        int typeSize = 0;
+                        int alignSize = 0;
+                        if(arrayDim != 0) {
+                            bool isStruct = false;
+                            if(isPointer) {
+                                typeSize = alignSize = pointerSize;
+                            } else if(IsBuiltinTypeSize(alignmentRules, typeName, out typeSize, out alignSize)) {
+                                ;
+                            } else if(IsKnownStructure(structDict, typeName, out typeSize, out alignSize)) {
+                                isStruct = true;
+                            } else {
+                                typeSize = alignSize = pointerSize;
+                            }
+                            lastOffset = AlignByte(lastOffset, alignSize);
+
+                            if(arrayDim > 0) {
+                                if(isStruct) {
+                                    typeSize = AlignByte(typeSize, alignSize);
+                                }
+                                typeSize *= arrayDim;
+                            }
+                        }
+
+                        varData = new VarData(name, lastOffset, typeSize, alignSize);
+
+                        lastOffset += typeSize;
+                    }
+                    Console.WriteLine($"  {varData.offset,-4:X} {varData.size,-4:X} {type,-32} {varData.name}");
                     varDict.Add(varData);
                 }
             }
@@ -116,113 +209,12 @@ namespace Voxif.Helpers.StructReflector {
             return structDict;
         }
 
-        private static VarData HandleVariable(string varLine, int pointerSize, StructureDict structDict, ref int remainingBitFields, ref int lastOffset) {
-            int varId = varLine.IndexOf(' ');
-            string type = RemoveGeneric(varLine.Substring(0, varId));
-            string name = varLine.Substring(varId + 1);
-
-            bool isPointer = false;
-            int arrayDim = -1;
-            int bitField = -1;
-            string typeName;
-
-            int pointerId = type.IndexOf('*');
-            if(pointerId != -1) {
-                isPointer = true;
+        private static bool IsBuiltinTypeSize(Dictionary<string, TypeMemoryRule> alignmentRules, string name, out int typeSize, out int alignSize) {
+            if(alignmentRules != null && alignmentRules.TryGetValue(name, out TypeMemoryRule rule)) {
+                typeSize = rule.size;
+                alignSize = rule.alignment;
+                return true;
             }
-
-            int arrayId = type.IndexOf('[');
-            if(arrayId != -1) {
-                int endId = type.IndexOf(']', arrayId);
-                int startId = arrayId + 1;
-                arrayDim = Int32.TryParse(type.Substring(startId, endId - startId), out int resNb) ? resNb : 1;
-            }
-
-            int bitId = type.IndexOf(':');
-            if(bitId != -1) {
-                bitField = Int32.Parse(type.Substring(bitId + 1));
-            }
-
-            if(pointerId != -1 || arrayId != -1 || bitId != -1) {
-                typeName = type.Substring(0, GetLowestId(pointerId, arrayId, bitId));
-
-                int GetLowestId(params int[] ids) {
-                    int lowest = Int32.MaxValue;
-                    foreach(int id in ids) {
-                        if(id != -1 && id < lowest) {
-                            lowest = id;
-                        }
-                    }
-                    return lowest;
-                }
-            } else {
-                typeName = type;
-            }
-
-            VarData result;
-            if(bitField != -1) {
-                int alignSize = 0;
-                if(remainingBitFields < 0) {
-                    IsBuiltinTypeSize(typeName, pointerSize, out int typeSize, out alignSize);
-                    remainingBitFields = typeSize * 8;
-                    lastOffset = AlignByte(lastOffset, alignSize);
-                }
-
-                result = new VarData(name, lastOffset, BitsToBytes(bitField), alignSize);
-
-                int oldByte = BitsToBytes(remainingBitFields);
-                remainingBitFields -= bitField;
-                int curByte = BitsToBytes(remainingBitFields);
-                if(oldByte > curByte) {
-                    lastOffset += oldByte - curByte;
-                }
-            } else {
-                if(remainingBitFields > 0) {
-                    lastOffset += BitsToBytes(remainingBitFields);
-                    remainingBitFields = -1;
-                }
-
-                int typeSize = 0;
-                int alignSize = 0;
-                if(arrayDim != 0) {
-                    bool isStruct = false;
-                    if(isPointer) {
-                        typeSize = alignSize = pointerSize;
-                    } else if(IsBuiltinTypeSize(typeName, pointerSize, out typeSize, out alignSize)) {
-                        ;
-                    } else if(IsKnownStructure(structDict, typeName, out typeSize, out alignSize)) {
-                        isStruct = true;
-                    } else {
-                        typeSize = alignSize = pointerSize;
-                    }
-                    lastOffset = AlignByte(lastOffset, alignSize);
-
-                    if(arrayDim > 0) {
-                        if(isStruct) {
-                            typeSize = AlignByte(typeSize, alignSize);
-                        }
-                        typeSize *= arrayDim;
-                    }
-                }
-
-                result = new VarData(name, lastOffset, typeSize, alignSize);
-
-                lastOffset += typeSize;
-            }
-            Console.WriteLine($"  {result.offset,-4:X} {result.size,-4:X} {type,-32} {result.name}");
-            return result;
-        }
-
-        private static string RemoveGeneric(string name) {
-            int gIndex = name.IndexOf('<');
-            if(gIndex != -1) {
-                name = name.Substring(0, gIndex + 1) + name.Substring(name.LastIndexOf('>'));
-            }
-            return name;
-        }
-
-        // Visual C++ types (with C# names)
-        private static bool IsBuiltinTypeSize(string name, int pointerSize, out int typeSize, out int alignSize) {
             switch(name) {
                 case "bool":
                 case "byte":
@@ -241,16 +233,11 @@ namespace Voxif.Helpers.StructReflector {
                     return true;
                 case "long":
                 case "ulong":
-                    typeSize = 8;
-                    alignSize = pointerSize;
-                    return true;
                 case "double":
-                    //8-4 on linux and 8-8 with -malign-double
                     typeSize = alignSize = 8;
                     return true;
                 case "decimal":
-                    //highly platform dependant
-                    typeSize = alignSize = 8;
+                    typeSize = alignSize = 16;
                     return true;
                 default:
                     typeSize = alignSize = 0;
@@ -268,6 +255,14 @@ namespace Voxif.Helpers.StructReflector {
                 alignSize = 0;
                 return false;
             }
+        }
+
+        private static string RemoveGeneric(string name) {
+            int gIndex = name.IndexOf('<');
+            if(gIndex != -1) {
+                name = name.Substring(0, gIndex + 1) + name.Substring(name.LastIndexOf('>'));
+            }
+            return name;
         }
 
         private static int AlignByte(int total, int alignWith) {
@@ -354,6 +349,17 @@ namespace Voxif.Helpers.StructReflector {
                 }
                 Add(data.name, data.offset);
             }
+        }
+
+    }
+
+    public struct TypeMemoryRule {
+        public int size;
+        public int alignment;
+
+        public TypeMemoryRule(int size, int alignment) {
+            this.size = size;
+            this.alignment = alignment;
         }
     }
 

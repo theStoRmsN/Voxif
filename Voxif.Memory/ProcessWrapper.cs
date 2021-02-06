@@ -184,8 +184,8 @@ namespace Voxif.Memory {
 
             void SetEncoding(bool _isUnicode) {
                 isUnicode = _isUnicode;
-                encoding = isUnicode ? Encoding.Unicode : Encoding.UTF8;
-                charSize = isUnicode ? 2 : 1;
+                encoding = _isUnicode ? Encoding.Unicode : Encoding.UTF8;
+                charSize = _isUnicode ? 2 : 1;
             }
         }
 
