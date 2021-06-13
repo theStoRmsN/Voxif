@@ -29,18 +29,21 @@
     <Compile Remove="Voxif.Helpers.ScanHelper\**" />
     <Compile Remove="Voxif.Helpers.StructReflector\**" />
     <Compile Remove="Voxif.Helpers.UnityHelper\**" />
+    <Compile Remove="Voxif.Helpers.UnrealHelper\**" />
     <EmbeddedResource Remove="UnityHelper\**" />
     <EmbeddedResource Remove="UnrealHelper\**" />
     <EmbeddedResource Remove="Voxif.Helpers.MemoryHelper\**" />
     <EmbeddedResource Remove="Voxif.Helpers.ScanHelper\**" />
     <EmbeddedResource Remove="Voxif.Helpers.StructReflector\**" />
     <EmbeddedResource Remove="Voxif.Helpers.UnityHelper\**" />
+    <EmbeddedResource Remove="Voxif.Helpers.UnrealHelper\**" />
     <None Remove="UnityHelper\**" />
     <None Remove="UnrealHelper\**" />
     <None Remove="Voxif.Helpers.MemoryHelper\**" />
     <None Remove="Voxif.Helpers.ScanHelper\**" />
     <None Remove="Voxif.Helpers.StructReflector\**" />
     <None Remove="Voxif.Helpers.UnityHelper\**" />
+    <None Remove="Voxif.Helpers.UnrealHelper\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -114,7 +114,7 @@ namespace Voxif.Memory {
             byte[] buffer = new byte[size];
             if(NativeMethods.ReadProcessMemory(Process.Handle, address, buffer, size, out int readLength) && readLength == buffer.Length) {
                 if(type == EStringType.Auto) {
-                    encoding = readLength > 1 && buffer[0] == 0 ? Encoding.Unicode : Encoding.UTF8;
+                    encoding = readLength > 1 && buffer[1] == 0 ? Encoding.Unicode : Encoding.UTF8;
                 } else {
                     encoding = type == EStringType.UTF16 ? Encoding.Unicode : Encoding.UTF8;
                 }

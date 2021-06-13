@@ -144,14 +144,14 @@ namespace Voxif.AutoSplitter {
             return controls;
         }
 
-        public class RemainingHashSet : HashSet<string> {
+        public class RemainingHashSet<T> : HashSet<T> {
             protected Logger logger;
 
             public RemainingHashSet(Logger logger = null) {
                 this.logger = logger;
             }
 
-            public bool Split(string split) {
+            public bool Split(T split) {
                 logger?.Log("Try to split: " + split);
                 return Remove(split);
             }

@@ -36,8 +36,8 @@
     <PackageReference Include="Voxif.IO" Version="1.0.0" />
     <PackageReference Include="Voxif.Memory" Version="1.0.3" />
     <PackageReference Include="Voxif.Helpers" Version="1.0.0" />
-    <PackageReference Include="Voxif.Helpers.MemoryHelper" Version="1.0.2" />
-    <PackageReference Include="Voxif.Helpers.StructReflector" Version="1.0.0" />
+    <PackageReference Include="Voxif.Helpers.MemoryHelper" Version="1.0.3" />
+    <PackageReference Include="Voxif.Helpers.StructReflector" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

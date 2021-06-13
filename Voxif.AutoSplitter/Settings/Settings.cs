@@ -234,11 +234,13 @@ namespace Voxif.AutoSplitter {
 
             if(lastPreset == CustomPreset && !ComboBoxPreset.Items.Contains(CustomPreset)) {
                 ComboBoxPreset.Items.Add(CustomPreset);
+                ComboBoxPreset.Text = lastPreset;
             } else if(lastPreset != CustomPreset && ComboBoxPreset.Items.Contains(CustomPreset)) {
+                ComboBoxPreset.Text = lastPreset; 
                 ComboBoxPreset.Items.Remove(CustomPreset);
+            } else {
+                ComboBoxPreset.Text = lastPreset;
             }
-
-            ComboBoxPreset.Text = lastPreset;
         }
 
         protected void ComboBoxPreset_DropDown(object sender, EventArgs e) {

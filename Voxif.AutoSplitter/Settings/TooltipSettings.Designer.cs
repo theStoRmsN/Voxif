@@ -72,6 +72,7 @@
             this.LabelText.Size = new System.Drawing.Size(92, 30);
             this.LabelText.TabIndex = 0;
             this.LabelText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.LabelText.UseMnemonic = false;
             // 
             // TooltipSettings
             // 

@@ -20,14 +20,12 @@ namespace Voxif.IO {
         private Dictionary<string, Stopwatch> swDict;
         private Dictionary<string, Tuple<int, double>> swAvg;
 
-#pragma warning disable IDE0074
         protected Dictionary<string, Stopwatch> StopwatchDict {
             get => swDict ?? (swDict = new Dictionary<string, Stopwatch>());
         }
         protected Dictionary<string, Tuple<int, double>> StopwatchAverage {
             get => swAvg ?? (swAvg = new Dictionary<string, Tuple<int, double>>());
         }
-#pragma warning restore IDE0074
 
         public void StartBenchmark(string key) {
             StopwatchDict.Add(key, Stopwatch.StartNew());

@@ -1,4 +1,4 @@
-Voxif.Helpers.UnityHelper.IL2cpp_Base
+Voxif.Helpers.UnityHelper.Il2cpp_Base
 
 MonoClass
   void* image

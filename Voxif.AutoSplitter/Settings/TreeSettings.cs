@@ -331,7 +331,8 @@ namespace Voxif.AutoSplitter {
             TextRenderer.DrawText(
                 e.Graphics, node.Text, TreeCustomSettings.Font,
                 new Point(startX, startY),
-                node.IsSelected ? SystemColors.Window : SystemColors.ControlText
+                node.IsSelected ? SystemColors.Window : SystemColors.ControlText,
+                TextFormatFlags.NoPrefix
             );
         }
 

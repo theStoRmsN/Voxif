@@ -63,8 +63,8 @@ namespace Voxif.AutoSplitter {
         }
 
         public virtual void Dispose() {
-            game?.Process.Dispose();
             OnExit?.Invoke();
+            game?.Process.Dispose();
         }
 
         public virtual Action OnHook { get; set; }

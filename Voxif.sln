@@ -16,12 +16,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers.MemoryHelper"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers.StructReflector", "Voxif.Helpers\Voxif.Helpers.StructReflector\Voxif.Helpers.StructReflector.csproj", "{C9D942A7-5376-48FA-A08D-533582C32164}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers.UnityHelper", "Voxif.Helpers\Voxif.Helpers.UnityHelper\Voxif.Helpers.UnityHelper.csproj", "{B953B799-7094-4B54-8F7D-D2CB3519AA81}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F} = {EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers", "Voxif.Helpers\Voxif.Helpers.csproj", "{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers.UnityHelper", "Voxif.Helpers\Voxif.Helpers.UnityHelper\Voxif.Helpers.UnityHelper.csproj", "{1C0FB6E3-C5DB-426A-BA42-2F64DF4E4358}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voxif.Helpers.UnrealHelper", "Voxif.Helpers\Voxif.Helpers.UnrealHelper\Voxif.Helpers.UnrealHelper.csproj", "{BBF668F0-3AF5-4D1E-A0EC-2D31C45024C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,14 +48,18 @@ Global
 		{C9D942A7-5376-48FA-A08D-533582C32164}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9D942A7-5376-48FA-A08D-533582C32164}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9D942A7-5376-48FA-A08D-533582C32164}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B953B799-7094-4B54-8F7D-D2CB3519AA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B953B799-7094-4B54-8F7D-D2CB3519AA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B953B799-7094-4B54-8F7D-D2CB3519AA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B953B799-7094-4B54-8F7D-D2CB3519AA81}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB2ECB65-13A1-45EE-8B3C-83229AE4EE7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C0FB6E3-C5DB-426A-BA42-2F64DF4E4358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C0FB6E3-C5DB-426A-BA42-2F64DF4E4358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C0FB6E3-C5DB-426A-BA42-2F64DF4E4358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C0FB6E3-C5DB-426A-BA42-2F64DF4E4358}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBF668F0-3AF5-4D1E-A0EC-2D31C45024C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBF668F0-3AF5-4D1E-A0EC-2D31C45024C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBF668F0-3AF5-4D1E-A0EC-2D31C45024C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBF668F0-3AF5-4D1E-A0EC-2D31C45024C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

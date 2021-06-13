@@ -6,6 +6,8 @@ using Voxif.Memory;
 namespace Voxif.Helpers.Unity {
     public class MonoNestedPointerFactory : NestedPointerFactory {
 
+        public readonly int StringHeaderSize;
+
         protected IMonoHelper mono;
 
         public MonoNestedPointerFactory(TickableProcessWrapper wrapper, IMonoHelper monoHelper)
@@ -15,6 +17,7 @@ namespace Voxif.Helpers.Unity {
         public MonoNestedPointerFactory(TickableProcessWrapper wrapper, string moduleName, IMonoHelper monoHelper, EDerefType derefType)
             : base(wrapper, moduleName, derefType) {
             mono = monoHelper;
+            StringHeaderSize = wrapper.PointerSize * 2 + 0x4;
         }
 
 
@@ -61,32 +64,14 @@ namespace Voxif.Helpers.Unity {
             return MakeString(image, className, staticFieldName, out _, offsets);
         }
         public StringPointer MakeString(IntPtr image, string className, string staticFieldName, out IntPtr klass, params int[] offsets) {
-            var pointer = (StringPointer)Make(typeof(string), image, className, staticFieldName, out klass, AddStringOffset(offsets));
-            pointer.StringType = EStringType.AutoSized;
-            return pointer;
+            return (StringPointer)Make(typeof(string), image, className, staticFieldName, out klass, offsets);
         }
 
         public StringPointer MakeString(string className, string staticFieldName, string fieldName, params int[] offsets) {
             return MakeString(mono.MainImage, className, staticFieldName, fieldName, offsets);
         }
         public StringPointer MakeString(IntPtr image, string className, string staticFieldName, string fieldName, params int[] offsets) {
-            var pointer = (StringPointer)Make(typeof(string), image, className, staticFieldName, fieldName, AddStringOffset(offsets));
-            pointer.StringType = EStringType.AutoSized;
-            return pointer;
-        }
-
-        public new StringPointer MakeString(Pointer parent, params int[] offsets) {
-            var pointer = base.MakeString(parent, AddStringOffset(offsets));
-            pointer.StringType = EStringType.AutoSized;
-            return pointer;
-        }
-
-        protected int[] AddStringOffset(int[] offsets) {
-            int[] stringOffsets = new int[offsets.Length + 1];
-            Array.Copy(offsets, stringOffsets, offsets.Length);
-            //add offset => object header(ptr + ptr) + string length(int)
-            stringOffsets[offsets.Length] = wrapper.PointerSize * 2 + 0x4;
-            return stringOffsets;
+            return (StringPointer)Make(typeof(string), image, className, staticFieldName, fieldName, offsets);
         }
 
 
