@@ -8,7 +8,7 @@ namespace Voxif.Helpers {
 
         protected Task task;
         protected CancellationTokenSource tokenSource;
-        protected CancellationToken token;
+        public CancellationToken token;
 
         public bool IsCompleted => task?.IsCompleted ?? true;
 
