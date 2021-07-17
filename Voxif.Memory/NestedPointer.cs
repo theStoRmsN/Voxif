@@ -245,6 +245,8 @@ namespace Voxif.Memory {
 
         public int[] Offsets { get; set; }
 
+        public bool UpdateOnNullPointer { get; set; } = true;
+
         public EDerefType derefType;
 
         public Pointer(TickableProcessWrapper wrapper, EDerefType derefType, params int[] offsets) {
@@ -256,6 +258,14 @@ namespace Voxif.Memory {
         protected abstract IntPtr DerefOffsets();
 
         protected abstract void Update();
+
+        public void ForceUpdate(bool ignoreTicks = false) {
+            if(ignoreTicks) {
+                Update();
+            } else {
+                _ = New;
+            }
+        }
 
         public string OffsetsToString() {
             if(Offsets.Length == 0) {
@@ -289,8 +299,11 @@ namespace Voxif.Memory {
             : base(wrapper, derefType, offsets) { }
 
         protected override void Update() {
-            Old = (T)(newValue ?? default(T));
-            New = wrapper.Read<T>(derefType, DerefOffsets());
+            IntPtr resPtr = DerefOffsets();
+            if(resPtr != default || UpdateOnNullPointer) {
+                Old = (T)(newValue ?? default(T));
+                New = wrapper.Read<T>(derefType, resPtr);
+            }
         }
     }
 
@@ -310,8 +323,11 @@ namespace Voxif.Memory {
         public StringPointer(TickableProcessWrapper wrapper, EDerefType derefType, params int[] offsets)
             : base(wrapper, derefType, offsets) { }
         protected override void Update() {
-            Old = (string)(newValue ?? default(string));
-            New = wrapper.ReadString(DerefOffsets(), StringType);
+            IntPtr resPtr = DerefOffsets();
+            if(resPtr != default || UpdateOnNullPointer) {
+                Old = (string)(newValue ?? default(string));
+                New = wrapper.ReadString(resPtr, StringType);
+            }
         }
     }
 
@@ -382,6 +398,34 @@ namespace Voxif.Memory {
 
         protected override IntPtr DerefOffsets() {
             return wrapper.Read(derefType, (IntPtr)Parent.New, Offsets);
+        }
+    }
+
+    public class FakePointer<T> {
+        
+        protected readonly Func<T> func = null;
+
+        public FakePointer() { }
+        public FakePointer(Func<T> func) {
+            this.func = func;
+        }
+
+        public T Old { get; set; }
+        public T New { get; set; }
+        public bool Changed => !Old.Equals(New);
+
+        public bool Update() {
+            Old = New;
+            if(func != null) {
+                New = func.Invoke();
+            }
+            return Changed;
+        }
+
+        public bool Update(T newValue) {
+            Old = New;
+            New = newValue;
+            return Changed;
         }
     }
 }

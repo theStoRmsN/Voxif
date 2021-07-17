@@ -3,12 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Voxif.Memory</AssemblyName>
-    <RootNamespace>Voxif.Memory</RootNamespace>
     <Copyright>Copyright @ 2021</Copyright>
     <Company>Voxif</Company>
     <Authors>Voxelse</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
