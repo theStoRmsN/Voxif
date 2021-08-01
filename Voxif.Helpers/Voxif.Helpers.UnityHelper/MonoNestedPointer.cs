@@ -21,15 +21,33 @@ namespace Voxif.Helpers.Unity {
         }
 
 
+        public MonoBasePointer Make(string className) {
+            return Make(mono.MainImage, className, out _);
+        }
         public MonoBasePointer Make(string className, out IntPtr klass) {
             return Make(mono.MainImage, className, out klass);
         }
         public MonoBasePointer Make(IntPtr image, string className, out IntPtr klass) {
-            klass = mono.FindClass(image, className);
+            klass = mono.FindClass(className, image);
             var monoBase = new MonoBasePointer(wrapper, mono, klass);
             _ = monoBase.New;
             nodeLink.Add(monoBase, new HashSet<IPointer> { });
             return monoBase;
+        }
+
+
+        public Pointer<T> Make<T>(MonoBasePointer parent, string staticFieldName, string fieldName, params int[] offsets) where T : unmanaged {
+            return Make<T>(parent, staticFieldName, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).ToArray());
+        }
+        public Pointer<T> Make<T>(MonoBasePointer parent, string staticFieldName, params int[] offsets) where T : unmanaged {
+            return Make<T>(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, staticFieldName)).ToArray());
+        }
+
+        public StringPointer MakeString(MonoBasePointer parent, string staticFieldName, string fieldName, params int[] offsets) {
+            return MakeString(parent, staticFieldName, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).ToArray());
+        }
+        public StringPointer MakeString(MonoBasePointer parent, string staticFieldName, params int[] offsets) {
+            return MakeString(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, staticFieldName)).ToArray());
         }
 
 

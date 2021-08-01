@@ -218,7 +218,10 @@ namespace Voxif.Helpers.Unity {
                 return wrapper.Read<int>(klass + data.GetOffset("MonoClass", "field_count"));
             }
             protected abstract IEnumerable<IntPtr> ClassSequence(IntPtr image);
-            public virtual IntPtr FindClass(IntPtr image, string classToFind) {
+            public virtual IntPtr FindClass(string classToFind) {
+                return FindClass(classToFind, MainImage);
+            }
+            public virtual IntPtr FindClass(string classToFind, IntPtr image) {
                 Log("Looking for class: " + classToFind);
                 int namespaceId = classToFind.LastIndexOf('.');
                 string namespaceStr = null;
@@ -271,14 +274,14 @@ namespace Voxif.Helpers.Unity {
                 return GetFieldOffset(MainImage, className, fieldName, out _, includeParents);
             }
             public virtual int GetFieldOffset(IntPtr image, string className, string fieldName, bool includeParents = true) {
-                IntPtr klass = FindClass(image, className);
+                IntPtr klass = FindClass(className, image);
                 return GetFieldOffset(klass, fieldName, includeParents);
             }
             public virtual int GetFieldOffset(string className, string fieldName, out IntPtr klass, bool includeParents = true) {
                 return GetFieldOffset(MainImage, className, fieldName, out klass, includeParents);
             }
             public virtual int GetFieldOffset(IntPtr image, string className, string fieldName, out IntPtr klass, bool includeParents = true) {
-                klass = FindClass(image, className);
+                klass = FindClass(className, image);
                 return GetFieldOffset(klass, fieldName, includeParents);
             }
             public virtual int GetFieldOffset(IntPtr klass, string fieldName, bool includeParents = true) {
@@ -297,7 +300,7 @@ namespace Voxif.Helpers.Unity {
                 }
             }
             public virtual IntPtr GetStaticField(IntPtr image, string className, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true) {
-                klass = FindClass(image, className);
+                klass = FindClass(className, image);
                 return GetStaticField(klass, fieldName, out staticOffset, includeParents);
             }
             public virtual IntPtr GetStaticField(IntPtr klass, string fieldName, out int staticOffset, bool includeParents = true) {
@@ -562,7 +565,8 @@ namespace Voxif.Helpers.Unity {
         
         IntPtr FindImage(string imageToFind);
         
-        IntPtr FindClass(IntPtr image, string classToFind);
+        IntPtr FindClass(string classToFind);
+        IntPtr FindClass(string classToFind, IntPtr image);
 
         IntPtr GetStaticField(IntPtr image, string className, string fieldName, out IntPtr klass, out int staticOffset, bool includeParents = true);
         IntPtr GetStaticField(IntPtr klass, string fieldName, out int staticOffset, bool includeParents = true);
