@@ -57,7 +57,7 @@ namespace Voxif.AutoSplitter {
                 return false;
             }
             game = new TickableProcessWrapper(process);
-            logger.Log($"Process Found. PID: {game.Process.Id}, 64bit: {game.Is64Bit}");
+            logger?.Log($"Process Found. PID: {game.Process.Id}, {(game.Is64Bit ? "64" : "32")}bit");
             OnHook?.Invoke();
             return true;
         }

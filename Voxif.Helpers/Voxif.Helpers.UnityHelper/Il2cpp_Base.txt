@@ -30,7 +30,8 @@ MonoClass
   void* image
   void* _data1
   char* name
-  void*[8] _data2
+  char* name_space
+  void*[7] _data2
   MonoClass* parent
   void*[4] _data3
   MonoClassField* fields

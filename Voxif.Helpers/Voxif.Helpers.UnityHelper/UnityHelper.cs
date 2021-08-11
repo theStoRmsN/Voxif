@@ -538,14 +538,13 @@ namespace Voxif.Helpers.Unity {
                 
                 IntPtr table;
                 SignatureScanner typeDefScanner = new SignatureScanner(wrapper.Process, typeDefinitionFunc, 0x100);
+                ScanTarget scanTarget;
                 if(wrapper.Is64Bit) {
-                    ScanTarget scanTarget64 = new ScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05");
-                    table = wrapper.FromRelativeAddress(typeDefScanner.Scan(scanTarget64));
+                    scanTarget = new ScanTarget(0xB, "48 8D 1C FD ???????? 48 8B 05");
                 } else {
-                    ScanTarget scanTarget32 = new ScanTarget(0x5, "8B E5 5D C3 A1 ???????? 83 3C B0");
-                    table = wrapper.FromAbsoluteAddress(typeDefScanner.Scan(scanTarget32));
+                    scanTarget = new ScanTarget(0x5, "8B E5 5D C3 A1 ???????? 83 3C B0");
                 }
-                table = wrapper.Read<IntPtr>(table);
+                table = wrapper.Read<IntPtr>(wrapper.FromAssemblyAddress(typeDefScanner.Scan(scanTarget)));
 
                 int offset = wrapper.Read<int>(image + data.GetOffset("MonoImage", "table_offset"));
                 int size = wrapper.Read<int>(image + data.GetOffset("MonoImage", "class_count"));

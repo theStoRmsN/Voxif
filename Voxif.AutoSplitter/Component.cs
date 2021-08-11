@@ -66,12 +66,7 @@ namespace Voxif.AutoSplitter {
                 return;
             }
 
-            if(timer.CurrentState.CurrentSplitIndex < 0) {
-                if(settings.Start != 0 && Start()) {
-                    timer.Start();
-                    logger.Log("Start");
-                }
-            } else {
+            if(timer.CurrentState.CurrentSplitIndex >= 0) {
                 if(GameTimeType == EGameTime.Loading) {
                     timer.CurrentState.IsGameTimePaused = Loading();
                 } else if(GameTimeType == EGameTime.GameTime) {
@@ -80,10 +75,17 @@ namespace Voxif.AutoSplitter {
 
                 if(settings.Reset != 0 && Reset()) {
                     timer.Reset();
-                    logger.Log("Reset");
+                    logger?.Log("Reset");
                 } else if(Split()) {
                     timer.Split();
-                    logger.Log("Split");
+                    logger?.Log("Split");
+                }
+            }
+
+            if(timer.CurrentState.CurrentSplitIndex < 0) {
+                if(settings.Start != 0 && Start()) {
+                    timer.Start();
+                    logger?.Log("Start");
                 }
             }
         }
@@ -113,11 +115,11 @@ namespace Voxif.AutoSplitter {
         public virtual void OnReset() { }
         
         public override void Dispose() {
-            logger.Log("Dispose");
+            logger?.Log("Dispose");
             timer.CurrentState.OnStart -= OnStart;
             timer.CurrentState.OnSplit -= OnSplit;
             timer.CurrentState.OnReset -= OnReset;
-            logger.StopLogger();
+            logger?.StopLogger();
         }
 
         public static string[] GetEnumDescriptions<E>() where E : Enum {
@@ -183,9 +185,9 @@ namespace Voxif.AutoSplitter {
                 }
             }
 
-            public bool Split(string type, string setting) {
+            public bool Split(string type, object setting) {
                 logger?.Log("Try to split: " + type + ", " + setting);
-                if(this[type].Remove(setting)) {
+                if(this[type].Remove(setting.ToString())) {
                     if(this[type].Count == 0) {
                         Remove(type);
                     }
@@ -198,13 +200,6 @@ namespace Voxif.AutoSplitter {
                 logger?.Log("Try to split type: " + type);
                 return Remove(type);
             }
-        }
-    }
-
-    public class TypeAttribute : Attribute {
-        public Type Type { get; }
-        public TypeAttribute(Type type) {
-            Type = type;
         }
     }
 
@@ -225,6 +220,21 @@ namespace Voxif.AutoSplitter {
         public OptionsInfo(string[] def, Control[] values) {
             this.def = def;
             this.values = values;
+        }
+    }
+
+    public class TypeAttribute : Attribute {
+        public Type Type { get; }
+        public TypeAttribute(Type type) {
+            Type = type;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class ComponentNameAttribute : Attribute {
+        public string Value { get; private set; }
+        public ComponentNameAttribute(string value) {
+            Value = value;
         }
     }
 }

@@ -36,15 +36,22 @@ namespace Voxif.AutoSplitter {
         // ASSEMBLY
         //
         public static string FullComponentName(this Assembly asm) {
-            string name = asm.GetName().Name.Substring(10);
-            StringBuilder sb = new StringBuilder(name.Length * 2);
-            sb.Append(name[0]);
-            for(int i = 1; i < name.Length; i++) {
-                if(Char.IsUpper(name[i]) && name[i - 1] != ' ') {
-                    sb.Append(' ');
+            StringBuilder sb = new StringBuilder();
+
+            var componentNameAttribute = asm.GetCustomAttributes(typeof(ComponentNameAttribute), false);
+            if(componentNameAttribute.Length == 0) {
+                string name = asm.GetName().Name.Substring(10);
+                sb.Append(name[0]);
+                for(int i = 1; i < name.Length; i++) {
+                    if(Char.IsUpper(name[i]) && name[i - 1] != ' ') {
+                        sb.Append(' ');
+                    }
+                    sb.Append(name[i]);
                 }
-                sb.Append(name[i]);
+            } else {
+                sb.Append(((ComponentNameAttribute)componentNameAttribute[0]).Value);
             }
+
             sb.Append(" Autosplitter v").Append(asm.GetName().Version.ToString(3));
             return sb.ToString();
         }

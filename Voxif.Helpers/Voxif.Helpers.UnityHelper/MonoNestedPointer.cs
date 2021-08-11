@@ -37,17 +37,21 @@ namespace Voxif.Helpers.Unity {
 
 
         public Pointer<T> Make<T>(MonoBasePointer parent, string staticFieldName, string fieldName, params int[] offsets) where T : unmanaged {
-            return Make<T>(parent, staticFieldName, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).ToArray());
+            mono.GetStaticField(parent.Base, staticFieldName, out var staticOffset);
+            return Make<T>(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).Prepend(staticOffset).ToArray());
         }
         public Pointer<T> Make<T>(MonoBasePointer parent, string staticFieldName, params int[] offsets) where T : unmanaged {
-            return Make<T>(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, staticFieldName)).ToArray());
+            mono.GetStaticField(parent.Base, staticFieldName, out var staticOffset);
+            return Make<T>(parent, offsets.Prepend(staticOffset).ToArray());
         }
 
         public StringPointer MakeString(MonoBasePointer parent, string staticFieldName, string fieldName, params int[] offsets) {
-            return MakeString(parent, staticFieldName, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).ToArray());
+            mono.GetStaticField(parent.Base, staticFieldName, out var staticOffset);
+            return MakeString(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, fieldName)).Prepend(staticOffset).ToArray());
         }
         public StringPointer MakeString(MonoBasePointer parent, string staticFieldName, params int[] offsets) {
-            return MakeString(parent, offsets.Prepend(mono.GetFieldOffset(parent.Base, staticFieldName)).ToArray());
+            mono.GetStaticField(parent.Base, staticFieldName, out var staticOffset);
+            return MakeString(parent, offsets.Prepend(staticOffset).ToArray());
         }
 
 
