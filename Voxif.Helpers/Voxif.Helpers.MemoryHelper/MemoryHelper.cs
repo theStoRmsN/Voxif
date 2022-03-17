@@ -61,7 +61,7 @@ namespace Voxif.Helpers.MemoryHelper {
                         foreach(MemoryBasicInformation page in wrapper.MemoryPages(pagesScanAll)) {
                             token.ThrowIfCancellationRequested();
 
-                            SearchAllSigs(moduleScan, new SignatureScanner(wrapper.Process, page.BaseAddress, (int)page.RegionSize));
+                            SearchAllSigs(moduleScan, new SignatureScanner(wrapper, page.BaseAddress, (int)page.RegionSize));
                             if(AllSigsFound()) {
                                 break;
                             }
@@ -71,7 +71,7 @@ namespace Voxif.Helpers.MemoryHelper {
                         if(module == null) {
                             continue;
                         }
-                        SearchAllSigs(moduleScan, new SignatureScanner(wrapper.Process, module.BaseAddress, module.ModuleMemorySize));
+                        SearchAllSigs(moduleScan, new SignatureScanner(wrapper, module.BaseAddress, module.ModuleMemorySize));
                         if(AllSigsFound()) {
                             break;
                         }
@@ -123,7 +123,7 @@ namespace Voxif.Helpers.MemoryHelper {
 
         public bool doScan = true;
 
-        public Func<IntPtr, string, bool> IsGoodMatch = null;
+        public Func<ProcessWrapper, IntPtr, string, bool> IsGoodMatch = null;
 
         public delegate void OnScanFoundCallback(IntPtr ptr, string version);
         public OnScanFoundCallback OnFound { get; set; }
@@ -199,19 +199,17 @@ namespace Voxif.Helpers.MemoryHelper {
     }
 
     public class SignatureScanner {
-        private readonly Process process;
+        private readonly ProcessWrapper wrapper;
         private readonly IntPtr address;
         private readonly int size;
         private byte[] memory;
 
-        public SignatureScanner(Process process, IntPtr address, int size) {
-            this.process = process ?? throw new ArgumentNullException(nameof(process));
+        public SignatureScanner(ProcessWrapper wrapper, IntPtr address, int size) {
+            this.wrapper = wrapper ?? throw new ArgumentNullException(nameof(wrapper));
             this.address = address != default ? address : throw new ArgumentException("addr cannot be IntPtr.Zero.", nameof(address));
             this.size = size > 0 ? size : throw new ArgumentException("size cannot be less than zero.", nameof(size));
             memory = new byte[1];
         }
-        public SignatureScanner(ProcessWrapper processWrapper, IntPtr address, int size)
-            : this(processWrapper?.Process, address, size) { }
 
         public SignatureScanner(byte[] memory) {
             this.memory = memory ?? throw new ArgumentNullException(nameof(memory));
@@ -234,7 +232,7 @@ namespace Voxif.Helpers.MemoryHelper {
 
         private IEnumerable<IntPtr> ScanInternal(ScanTarget target, int align) {
             if(memory == null || memory.Length != size) {
-                if(!process.ReadBytes(address, size, out byte[] bytes)) {
+                if(!wrapper.Process.ReadBytes(address, size, out byte[] bytes)) {
                     memory = null;
                     yield break;
                 }
@@ -244,7 +242,7 @@ namespace Voxif.Helpers.MemoryHelper {
             foreach(ScanTarget.Signature sig in target.Signatures) {
                 foreach(int off in new ScanEnumerator(memory, align, sig)) {
                     IntPtr ptr = address + off + sig.offset;
-                    if(target.IsGoodMatch?.Invoke(ptr, sig.version) ?? true) {
+                    if(target.IsGoodMatch?.Invoke(wrapper, ptr, sig.version) ?? true) {
                         target.OnFound?.Invoke(ptr, sig.version);
                         yield return ptr;
                     }

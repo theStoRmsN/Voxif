@@ -6,7 +6,7 @@
     <Company>Voxif</Company>
     <Authors>Voxelse</Authors>
     <Copyright>Copyright @ 2021</Copyright>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
