@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Voxif.Helpers.MemoryHelper;
 using Voxif.Helpers.StructReflector;
 using Voxif.IO;
@@ -20,11 +21,11 @@ namespace Voxif.Helpers.Unity {
 
         protected override void Log(string msg) => logger?.Log("[Unity] " + msg);
 
-        public void Run(Action<IMonoHelper> action) {
-            Run(null, action);
+        public Task Run(Action<IMonoHelper> action) {
+            return Run(null, action);
         }
-        public void Run(Version version, Action<IMonoHelper> action) {
-            Run(() => {
+        public Task Run(Version version, Action<IMonoHelper> action) {
+            return Run(() => {
                 UnityHelperBase unity;
 
                 string monoModule;

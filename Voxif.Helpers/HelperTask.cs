@@ -20,14 +20,14 @@ namespace Voxif.Helpers {
 
         protected static void Sleep(int millisecondsTimeout = 50) => Thread.Sleep(millisecondsTimeout);
 
-        protected void Run(Action action) {
+        protected Task Run(Action action) {
             if(!IsCompleted) {
                 tokenSource.Cancel();
                 task.Wait();
             }
             tokenSource = new CancellationTokenSource();
             token = tokenSource.Token;
-            task = Task.Factory.StartNew(() => {
+            return task = Task.Factory.StartNew(() => {
                 try {
                     action();
                     Log("Task terminated");

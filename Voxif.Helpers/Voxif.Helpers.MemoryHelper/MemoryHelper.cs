@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Voxif.IO;
 using Voxif.Memory;
 
@@ -22,8 +22,8 @@ namespace Voxif.Helpers.MemoryHelper {
 
         protected override void Log(string msg) => logger?.Log("[Scan] " + msg);
 
-        public void Run(ScannableData scanDict, Action<ScannableResult> action = null) {
-            Run(() => {
+        public Task Run(ScannableData scanDict, Action<ScannableResult> action = null) {
+            return Run(() => {
                 var result = ScanMemory(scanDict);
                 action?.Invoke(result);
             });

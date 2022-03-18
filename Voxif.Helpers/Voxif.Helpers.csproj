@@ -7,7 +7,7 @@
     <Product>Voxif.Helpers</Product>
     <Company>Voxif</Company>
     <Authors>Voxelse</Authors>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -6,7 +6,7 @@
     <Company>Voxif</Company>
     <Authors>Voxelse</Authors>
     <Copyright>Copyright @ 2021</Copyright>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Voxif.IO" Version="1.0.0" />
     <PackageReference Include="Voxif.Memory" Version="1.0.3" />
-    <PackageReference Include="Voxif.Helpers" Version="1.0.0" />
+    <PackageReference Include="Voxif.Helpers" Version="1.0.2" />
   </ItemGroup>
 
 </Project>
