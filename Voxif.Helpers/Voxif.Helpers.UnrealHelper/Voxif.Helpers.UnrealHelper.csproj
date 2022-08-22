@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Company>Voxif</Company>
+    <Authors>Voxelse</Authors>
+    <Copyright>Copyright @ 2021</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Unreal4_0.txt" />
+    <None Remove="Unreal4_11.txt" />
+    <None Remove="Unreal4_13.txt" />
+    <None Remove="Unreal4_14.txt" />
+    <None Remove="Unreal4_18.txt" />
+    <None Remove="Unreal4_20.txt" />
+    <None Remove="Unreal4_22.txt" />
+    <None Remove="Unreal4_23.txt" />
+    <None Remove="Unreal4_25.txt" />
+    <None Remove="Unreal4_8.txt" />
+    <None Remove="Unreal_Base - Copie.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Unreal4_0.txt" />
+    <EmbeddedResource Include="Unreal4_11.txt" />
+    <EmbeddedResource Include="Unreal4_13.txt" />
+    <EmbeddedResource Include="Unreal4_14.txt" />
+    <EmbeddedResource Include="Unreal4_18.txt" />
+    <EmbeddedResource Include="Unreal4_20.txt" />
+    <EmbeddedResource Include="Unreal4_22.txt" />
+    <EmbeddedResource Include="Unreal4_23.txt" />
+    <EmbeddedResource Include="Unreal4_25.txt" />
+    <EmbeddedResource Include="Unreal4_8.txt" />
+    <EmbeddedResource Include="Unreal_Base - Copie.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Voxif.IO" Version="1.0.0" />
+    <PackageReference Include="Voxif.Memory" Version="1.0.3" />
+    <PackageReference Include="Voxif.Helpers" Version="1.0.2" />
+    <PackageReference Include="Voxif.Helpers.MemoryHelper" Version="1.0.5" />
+    <PackageReference Include="Voxif.Helpers.StructReflector" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>
