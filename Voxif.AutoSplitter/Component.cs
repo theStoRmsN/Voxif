@@ -100,7 +100,7 @@ namespace Voxif.AutoSplitter {
         private void OnStart(object sender, EventArgs e) {
             if(GameTimeType == EGameTime.Loading) {
                 timer.CurrentState.IsGameTimePaused = Loading();
-                timer.CurrentState.SetGameTime(TimeSpan.Zero);
+                
             } else if(GameTimeType == EGameTime.GameTime) {
                 timer.CurrentState.IsGameTimePaused = true;
                 timer.CurrentState.SetGameTime(GameTime());
